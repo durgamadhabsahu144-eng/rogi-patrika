@@ -1,6 +1,8 @@
 import { useState, useEffect, Suspense } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,7 +10,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { Leaf, ArrowRight, Loader2, Mail, ArrowLeft } from "lucide-react";
+import { Leaf, ArrowRight, Loader2, Mail, ArrowLeft, Stethoscope, Heart, Shield } from "lucide-react";
 
 type Role = "doctor" | "patient" | "admin";
 
@@ -23,9 +25,18 @@ function resolveRedirect(role: Role | null): string {
   return "/dashboard";
 }
 
+function getRoleFromUser(user: { role?: string } | null | undefined): Role | null {
+  if (!user?.role) return null;
+  if (user.role === "doctor" || user.role === "patient" || user.role === "admin") {
+    return user.role;
+  }
+  return null;
+}
+
 function Auth({ redirectAfterAuth }: AuthProps = {}) {
-  const { isLoading: authLoading, isAuthenticated, signIn } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, user, signIn } = useAuth();
   const navigate = useNavigate();
+  const setMyRole = useMutation(api.users.setMyRole);
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get("role") as Role | null;
   const [selectedRole, setSelectedRole] = useState<Role | null>(roleParam);
@@ -37,11 +48,15 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // If already authenticated, redirect based on their stored role
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      navigate(redirectAfterAuth || resolveRedirect(selectedRole));
+    if (!authLoading && isAuthenticated && user) {
+      const userRole = getRoleFromUser(user);
+      if (userRole) {
+        navigate(redirectAfterAuth || resolveRedirect(userRole));
+      }
     }
-  }, [authLoading, isAuthenticated, navigate, redirectAfterAuth, selectedRole]);
+  }, [authLoading, isAuthenticated, user, navigate, redirectAfterAuth]);
 
   useEffect(() => {
     if (roleParam && (roleParam === "doctor" || roleParam === "patient" || roleParam === "admin")) {
@@ -84,6 +99,12 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       formData.set("email", email);
       formData.set("code", otp);
       await signIn("email-otp", formData);
+      
+      // Store the selected role for the user
+      if (selectedRole) {
+        await setMyRole({ role: selectedRole });
+      }
+      
       navigate(redirectAfterAuth || resolveRedirect(selectedRole));
     } catch {
       setError("The verification code is incorrect.");
@@ -93,10 +114,18 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   };
 
   const handleGuestLogin = async () => {
+    if (!selectedRole) {
+      setError("Please select a role first.");
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       await signIn("anonymous");
+      
+      // Store the selected role for the guest user
+      await setMyRole({ role: selectedRole });
+      
       navigate(redirectAfterAuth || resolveRedirect(selectedRole));
     } catch (err) {
       setError(
@@ -110,6 +139,18 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     doctor: "bg-neo-yellow",
     patient: "bg-neo-green",
     admin: "bg-neo-blue",
+  };
+
+  const roleIcons: Record<Role, typeof Leaf> = {
+    doctor: Stethoscope,
+    patient: Heart,
+    admin: Shield,
+  };
+
+  const roleDescriptions: Record<Role, string> = {
+    doctor: "Manage patients, prescriptions, and appointments",
+    patient: "View your health records and appointments",
+    admin: "Manage the healthcare system",
   };
 
   return (
@@ -134,19 +175,28 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <div>
             <h1 className="text-2xl font-black mb-2">Select your role</h1>
             <p className="text-sm text-muted-foreground mb-6">
-              Choose how you want to sign in
+              Choose how you want to sign in to CareSync Pro
             </p>
             <div className="space-y-3">
-              {(["doctor", "patient", "admin"] as Role[]).map((role) => (
-                <button
-                  key={role}
-                  onClick={() => handleRoleSelect(role)}
-                  className={`w-full p-5 border-2 border-foreground text-left hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#0A0A0A] transition-all ${roleColors[role]}`}
-                >
-                  <span className="font-bold text-lg capitalize">{role}</span>
-                  <ArrowRight className="float-right mt-1" />
-                </button>
-              ))}
+              {(["doctor", "patient", "admin"] as Role[]).map((role) => {
+                const Icon = roleIcons[role];
+                return (
+                  <button
+                    key={role}
+                    onClick={() => handleRoleSelect(role)}
+                    className={`w-full p-5 border-2 border-foreground text-left hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#0A0A0A] transition-all ${roleColors[role]}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-6 h-6" />
+                      <div>
+                        <span className="font-bold text-lg capitalize block">{role}</span>
+                        <span className="text-xs text-muted-foreground">{roleDescriptions[role]}</span>
+                      </div>
+                    </div>
+                    <ArrowRight className="float-right mt-[-24px]" />
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
