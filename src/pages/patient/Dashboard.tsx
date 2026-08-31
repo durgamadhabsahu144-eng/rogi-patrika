@@ -16,8 +16,12 @@ import {
   Mic,
   ChevronLeft,
   MicOff,
+  Camera,
+  Upload,
+  X,
 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { DocumentUploadWithCamera } from "@/components/CameraCapture";
 
 const languages = [
   { code: "en" as const, label: "English" },
@@ -32,7 +36,8 @@ type View =
   | "reports"
   | "followups"
   | "voice"
-  | "notifications";
+  | "notifications"
+  | "documents";
 
 export default function PatientDashboard() {
   const { user, signOut } = useAuth();
@@ -98,6 +103,9 @@ export default function PatientDashboard() {
         {view === "reports" && <ReportsView t={t} setView={setView} />}
         {view === "followups" && <FollowupsView t={t} setView={setView} />}
         {view === "voice" && <VoiceView t={t} setView={setView} />}
+        {view === "documents" && (
+          <DocumentsView t={t} setView={setView} language={language} />
+        )}
         {view === "notifications" && (
           <NotificationsView
             notifications={notifications || []}
@@ -129,6 +137,7 @@ function HomeView({
     { icon: Pill, label: t("patient.myPrescriptions"), view: "prescriptions" as View, color: "bg-neo-green" },
     { icon: FileText, label: t("patient.myReports"), view: "reports" as View, color: "bg-neo-yellow" },
     { icon: Clock, label: t("patient.myFollowups"), view: "followups" as View, color: "bg-neo-orange" },
+    { icon: Camera, label: language === "hi" ? "मेरे दस्तावेज़" : language === "or" ? "ମୋର ଦସ୍ତାବିଜ୍" : "My Documents", view: "documents" as View, color: "bg-neo-green/80" },
     { icon: Bell, label: t("patient.notifications"), view: "notifications" as View, color: "bg-muted", count: unreadCount },
   ];
 
@@ -314,6 +323,124 @@ function FollowupsView({ t, setView }: { t: (key: string) => string; setView: (v
         <p className="font-bold">No follow-ups scheduled</p>
         <p className="text-xs text-muted-foreground mt-1">Your doctor will schedule follow-ups here</p>
       </div>
+    </div>
+  );
+}
+
+/* ─── Documents View ─── */
+function DocumentsView({ t, setView, language }: { t: (key: string) => string; setView: (v: View) => void; language: string }) {
+  const [showUpload, setShowUpload] = useState(false);
+  const patientProfile = useQuery(api.patients.getMyProfile);
+  const [capturedDocs, setCapturedDocs] = useState<Array<Record<string, unknown>>>([]);
+
+  const refreshDocs = () => {
+    const docs = JSON.parse(localStorage.getItem("captured-docs") || "[]");
+    setCapturedDocs(docs);
+  };
+
+  // Load docs on mount
+  useState(() => {
+    refreshDocs();
+  });
+
+  const patientDocs = patientProfile
+    ? capturedDocs.filter((d) => d.patientId === patientProfile._id)
+    : [];
+
+  return (
+    <div className="space-y-4">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+        <ChevronLeft className="w-4 h-4" /> {t("common.back")}
+      </button>
+      <h1 className="text-xl font-black">{language === "hi" ? "मेरे दस्तावेज़" : language === "or" ? "ମୋର ଦସ୍ତାବିଜ୍" : "My Documents"}</h1>
+
+      {/* Upload Section */}
+      <div className="space-y-3">
+        <button
+          onClick={() => setShowUpload(!showUpload)}
+          className="w-full neo-card p-5 flex items-center gap-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#0A0A0A] transition-all text-left"
+        >
+          <div className="w-12 h-12 bg-neo-green border-2 border-foreground flex items-center justify-center shrink-0">
+            <Camera className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="font-bold text-base block">
+              {language === "hi" ? "दस्तावेज़ अपलोड करें" : language === "or" ? "ଦସ୍ତାବିଜ୍ ଅପଲୋଡ୍ କରନ୍ତୁ" : "Upload Prescription or Report"}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {language === "hi" ? "पुराने नुस्खे या रिपोर्ट की तस्वीर लें" : language === "or" ? "ପୁରୁଣା ପ୍ରେସ୍କ୍ରିପ୍ସନ ବା ରିପୋର୍ଟର ଫୋଟୋ ନିଅନ୍ତୁ" : "Capture old prescriptions or medical reports with your camera"}
+            </span>
+          </div>
+        </button>
+
+        {showUpload && patientProfile && (
+          <div className="neo-card p-6">
+            <h3 className="font-black text-lg mb-4">
+              {language === "hi" ? "कैमरा या फ़ाइल अपलोड" : language === "or" ? "କ୍ୟାମେରା ବା ଫାଇଲ୍ ଅପଲୋଡ୍" : "Camera or File Upload"}
+            </h3>
+            <DocumentUploadWithCamera
+              patientId={patientProfile._id}
+              onUploaded={() => {
+                setShowUpload(false);
+                refreshDocs();
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Uploaded Documents List */}
+      {patientDocs.length > 0 ? (
+        <div className="space-y-3">
+          <h3 className="font-bold text-sm">
+            {language === "hi" ? `आपके ${patientDocs.length} दस्तावेज़` : language === "or" ? `ଆପଣଙ୍କ ${patientDocs.length} ଦସ୍ତାବିଜ୍` : `Your ${patientDocs.length} Document(s)`}
+          </h3>
+          {patientDocs.map((doc) => (
+            <div key={String(doc._id)} className="neo-card p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-12 h-12 bg-neo-yellow border-2 border-foreground flex items-center justify-center shrink-0">
+                  {String(doc.fileType).includes("pdf") ? "📄" : "🖼️"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm">{String(doc.fileName)}</p>
+                  {doc.description ? (
+                    <p className="text-xs text-muted-foreground">
+                      {String(doc.description)}
+                    </p>
+                  ) : null}
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {new Date(Number(doc.createdAt)).toLocaleString()}
+                  </p>
+                </div>
+                {doc.fileUrl && String(doc.fileUrl).startsWith("data:image") ? (
+                  <div className="w-20 h-20 border-2 border-foreground overflow-hidden shrink-0">
+                    <img
+                      src={String(doc.fileUrl)}
+                      alt={String(doc.fileName)}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : null}
+              </div>
+              <div className="neo-border-sm p-2 mt-3 bg-neo-orange/20">
+                <p className="text-[10px] text-muted-foreground italic">
+                  {language === "hi" ? "AI/OCR निकाली गई जानकारी — डॉक्टर सत्यापन आवश्यक।" : language === "or" ? "AI/OCR ଟିପ୍ପଣୀ ସୂଚନା — ଡାକ୍ତର ସତ୍ୟାପନ ଆବଶ୍ୟକ।" : "AI/OCR extracted information — Doctor verification required."}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="neo-card p-8 text-center">
+          <Camera className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+          <p className="font-bold">
+            {language === "hi" ? "कोई दस्तावेज़ नहीं" : language === "or" ? "କୌଣସି ଦସ୍ତାବିଜ୍ ନାହିଁ" : "No documents yet"}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {language === "hi" ? "अपने पुराने नुस्खे या रिपोर्ट की तस्वीर लें" : language === "or" ? "ଆପଣଙ୍କ ପୁରୁଣା ପ୍ରେସ୍କ୍ରିପ୍ସନ ବା ରିପୋର୍ଟର ଫୋଟୋ ନିଅନ୍ତୁ" : "Capture or upload your old prescriptions and reports"}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -26,8 +26,10 @@ import {
   Leaf,
   ChevronRight,
   Loader2,
+  Camera,
 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { DocumentUploadWithCamera } from "@/components/CameraCapture";
 
 type View =
   | "dashboard"
@@ -764,16 +766,154 @@ function FollowupsView() {
 
 /* ─── Documents View ─── */
 function DocumentsView() {
+  const { t } = useLanguage();
+  const patients = useQuery(api.patients.list, {});
+  const [selectedPatientId, setSelectedPatientId] = useState<string | "">("");
+  const [showUpload, setShowUpload] = useState(false);
+  const [capturedDocs, setCapturedDocs] = useState<Array<Record<string, unknown>>>([]);
+
+  // Load captured docs from localStorage on mount and when showUpload changes
+  useState(() => {
+    const docs = JSON.parse(localStorage.getItem("captured-docs") || "[]");
+    setCapturedDocs(docs);
+  });
+
+  const refreshDocs = () => {
+    const docs = JSON.parse(localStorage.getItem("captured-docs") || "[]");
+    setCapturedDocs(docs);
+  };
+
+  const selectedPatientDocs = selectedPatientId
+    ? capturedDocs.filter((d) => d.patientId === selectedPatientId)
+    : [];
+
   return (
-    <div className="neo-card p-12 text-center">
-      <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-      <p className="font-bold mb-2">Documents</p>
-      <p className="text-sm text-muted-foreground">Select a patient to view uploaded documents and handwritten prescriptions.</p>
-      <div className="neo-border-sm p-4 mt-6 max-w-md mx-auto text-left">
-        <p className="text-xs font-bold mb-1">OCR Document Processing</p>
-        <p className="text-xs text-muted-foreground">Upload handwritten prescriptions, reports, or documents. OCR extracts text for doctor review and verification.</p>
-        <p className="text-[10px] text-muted-foreground mt-2 italic">AI/OCR extracted — Doctor verification required.</p>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="flex-1">
+          <label className="text-sm font-bold block mb-1">Select Patient</label>
+          <select
+            className="neo-input w-full py-2 px-3"
+            value={selectedPatientId}
+            onChange={(e) => {
+              setSelectedPatientId(e.target.value);
+              setShowUpload(false);
+            }}
+          >
+            <option value="">All patients</option>
+            {patients?.map((p) => (
+              <option key={p._id} value={p._id}>
+                {p.userName || "Patient"}
+              </option>
+            ))}
+          </select>
+        </div>
+        {selectedPatientId && (
+          <Button
+            onClick={() => setShowUpload(!showUpload)}
+            className="neo-btn bg-foreground text-background font-bold"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Capture Document
+          </Button>
+        )}
       </div>
+
+      {/* Camera Upload Section */}
+      {showUpload && selectedPatientId && (
+        <div className="neo-card p-6">
+          <h3 className="font-black text-lg mb-4">Upload / Capture Document</h3>
+          <DocumentUploadWithCamera
+            patientId={selectedPatientId}
+            onUploaded={() => {
+              setShowUpload(false);
+              refreshDocs();
+            }}
+          />
+        </div>
+      )}
+
+      {/* Document List */}
+      {selectedPatientId ? (
+        selectedPatientDocs.length === 0 ? (
+          <div className="neo-card p-12 text-center">
+            <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+            <p className="font-bold mb-2">No documents yet</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Capture or upload handwritten prescriptions and reports for this patient.
+            </p>
+            <Button
+              onClick={() => setShowUpload(true)}
+              className="neo-btn bg-foreground text-background font-bold"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              Capture First Document
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <h3 className="font-bold text-sm">
+              {selectedPatientDocs.length} document(s)
+            </h3>
+            {selectedPatientDocs.map((doc) => (
+              <div key={String(doc._id)} className="neo-card p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 bg-neo-yellow border-2 border-foreground flex items-center justify-center shrink-0">
+                    {String(doc.fileType).includes("pdf") ? "📄" : "🖼️"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{String(doc.fileName)}</p>
+                    {doc.description ? (
+                      <p className="text-xs text-muted-foreground">
+                        {String(doc.description)}
+                      </p>
+                    ) : null}
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {new Date(Number(doc.createdAt)).toLocaleString()}
+                    </p>
+                    {!doc.ocrVerified ? (
+                      <div className="mt-2 neo-border-sm p-2 bg-neo-orange/20">
+                        <p className="text-[10px] font-bold text-neo-orange">Pending OCR Review</p>
+                        <p className="text-[10px] text-muted-foreground italic">
+                          AI/OCR extracted — Doctor verification required.
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                  {/* Show thumbnail for images */}
+                  {doc.fileUrl && String(doc.fileUrl).startsWith("data:image") ? (
+                    <div className="w-20 h-20 border-2 border-foreground overflow-hidden shrink-0">
+                      <img
+                        src={String(doc.fileUrl)}
+                        alt={String(doc.fileName)}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      ) : (
+        <div className="neo-card p-12 text-center">
+          <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+          <p className="font-bold mb-2">Documents</p>
+          <p className="text-sm text-muted-foreground">
+            Select a patient above to view and upload documents and handwritten prescriptions.
+          </p>
+          <div className="neo-border-sm p-4 mt-6 max-w-md mx-auto text-left">
+            <p className="text-xs font-bold mb-1">📸 Camera Capture Feature</p>
+            <p className="text-xs text-muted-foreground">
+              Use your device camera to capture handwritten prescriptions and medical reports. 
+              The image is stored for doctor review and OCR processing.
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-2 italic">
+              AI/OCR extracted information — Doctor verification required.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

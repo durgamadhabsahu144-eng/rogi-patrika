@@ -11,14 +11,30 @@ export const list = query({
     const userId = await getAuthUserId(ctx);
     if (!userId) return []; // Return empty array instead of throwing
 
+    // Check if user is a doctor or admin — they can see all patients
+    const user = await ctx.db.get(userId);
+    const isDoctorOrAdmin = user?.role === "doctor" || user?.role === "admin";
+
     let patients;
-    if (args.doctorId) {
+    if (args.doctorId && !isDoctorOrAdmin) {
       patients = await ctx.db
         .query("patients")
         .withIndex("by_assignedDoctor", (q) =>
           q.eq("assignedDoctorId", args.doctorId!)
         )
         .collect();
+    } else if (args.doctorId && isDoctorOrAdmin) {
+      // Doctor/admin: show all patients (optionally filtered by doctor)
+      patients = await ctx.db
+        .query("patients")
+        .withIndex("by_assignedDoctor", (q) =>
+          q.eq("assignedDoctorId", args.doctorId!)
+        )
+        .collect();
+      // If no assigned patients, show all
+      if (patients.length === 0) {
+        patients = await ctx.db.query("patients").collect();
+      }
     } else {
       patients = await ctx.db.query("patients").collect();
     }

@@ -11,39 +11,43 @@ export const doctorStats = query({
       .query("doctors")
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
-    if (!doctor) return null;
 
     const today = new Date().toISOString().split("T")[0];
 
-    // Get all appointments for this doctor
-    const appointments = await ctx.db
-      .query("appointments")
-      .withIndex("by_doctorId", (q) => q.eq("doctorId", doctor._id))
-      .collect();
+    let appointments;
+    let patients;
+    let followups;
 
-    // Get all patients
-    const patients = await ctx.db
-      .query("patients")
-      .withIndex("by_assignedDoctor", (q) =>
-        q.eq("assignedDoctorId", doctor._id)
-      )
-      .collect();
+    if (doctor) {
+      // Get data assigned to this doctor
+      appointments = await ctx.db
+        .query("appointments")
+        .withIndex("by_doctorId", (q) => q.eq("doctorId", doctor._id))
+        .collect();
 
-    // Get followups
-    const followups = await ctx.db
-      .query("followups")
-      .withIndex("by_doctorId", (q) => q.eq("doctorId", doctor._id))
-      .collect();
+      patients = await ctx.db
+        .query("patients")
+        .withIndex("by_assignedDoctor", (q) =>
+          q.eq("assignedDoctorId", doctor._id)
+        )
+        .collect();
+
+      followups = await ctx.db
+        .query("followups")
+        .withIndex("by_doctorId", (q) => q.eq("doctorId", doctor._id))
+        .collect();
+    } else {
+      // No doctor profile yet — show ALL data so the dashboard isn't empty
+      appointments = await ctx.db.query("appointments").collect();
+      patients = await ctx.db.query("patients").collect();
+      followups = await ctx.db.query("followups").collect();
+    }
 
     const todayAppointments = appointments.filter(
       (a) => a.date === today && a.status === "scheduled"
     );
 
     const pendingFollowups = followups.filter((f) => f.status === "pending");
-
-    const completedAppointments = appointments.filter(
-      (a) => a.status === "completed"
-    );
 
     const scheduledAppointments = appointments.filter(
       (a) => a.status === "scheduled"
@@ -53,11 +57,10 @@ export const doctorStats = query({
     const patientIdsWithAppts = [
       ...new Set(appointments.map((a) => a.patientId)),
     ];
-    const recentPatients = patientIdsWithAppts.slice(0, 5);
+    const recentPatientIds = patientIdsWithAppts.slice(0, 5);
 
-    // Get patient details for recent patients
     const enrichedRecentPatients = await Promise.all(
-      recentPatients.map(async (pid) => {
+      recentPatientIds.map(async (pid) => {
         const patient = await ctx.db.get(pid);
         const user = patient ? await ctx.db.get(patient.userId) : null;
         return {
@@ -69,8 +72,7 @@ export const doctorStats = query({
     );
 
     // Upcoming appointments (next 7 days)
-    const now = Date.now();
-    const weekFromNow = new Date(now + 7 * 86400000)
+    const weekFromNow = new Date(Date.now() + 7 * 86400000)
       .toISOString()
       .split("T")[0];
     const upcomingAppointments = appointments
@@ -78,7 +80,9 @@ export const doctorStats = query({
         (a) =>
           a.status === "scheduled" && a.date >= today && a.date <= weekFromNow
       )
-      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+      .sort(
+        (a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)
+      )
       .slice(0, 5);
 
     const enrichedUpcoming = await Promise.all(
@@ -92,23 +96,14 @@ export const doctorStats = query({
       })
     );
 
-    // Recent activity (audit logs)
-    const auditLogs = await ctx.db
-      .query("audit_logs")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .order("desc")
-      .take(10);
-
     return {
       totalPatients: patients.length,
       todayAppointments: todayAppointments.length,
       pendingFollowups: pendingFollowups.length,
       totalAppointments: appointments.length,
-      completedAppointments: completedAppointments.length,
       scheduledAppointments: scheduledAppointments.length,
       recentPatients: enrichedRecentPatients,
       upcomingAppointments: enrichedUpcoming,
-      recentActivity: auditLogs,
     };
   },
 });
@@ -127,25 +122,21 @@ export const patientStats = query({
 
     const today = new Date().toISOString().split("T")[0];
 
-    // Get appointments
     const appointments = await ctx.db
       .query("appointments")
       .withIndex("by_patientId", (q) => q.eq("patientId", patient._id))
       .collect();
 
-    // Get prescriptions
     const prescriptions = await ctx.db
       .query("prescriptions")
       .withIndex("by_patientId", (q) => q.eq("patientId", patient._id))
       .collect();
 
-    // Get reports
     const reports = await ctx.db
       .query("reports")
       .withIndex("by_patientId", (q) => q.eq("patientId", patient._id))
       .collect();
 
-    // Get followups
     const followups = await ctx.db
       .query("followups")
       .withIndex("by_patientId", (q) => q.eq("patientId", patient._id))

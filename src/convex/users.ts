@@ -28,6 +28,42 @@ export const setMyRole = mutation({
       throw new Error("Not authenticated");
     }
     await ctx.db.patch(userId, { role: args.role });
+
+    // Auto-provision profiles on first role selection
+    if (args.role === "doctor") {
+      const existing = await ctx.db
+        .query("doctors")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .first();
+      if (!existing) {
+        await ctx.db.insert("doctors", {
+          userId,
+          specialization: "General Medicine",
+          hospital: "CareSync Pro Hospital",
+        });
+      }
+    } else if (args.role === "patient") {
+      const existing = await ctx.db
+        .query("patients")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .first();
+      if (!existing) {
+        const patientId = await ctx.db.insert("patients", {
+          userId,
+          qrCode: `PATIENT-${userId}`,
+        });
+        // Create notification
+        await ctx.db.insert("notifications", {
+          userId,
+          title: "Welcome to CareSync Pro",
+          message: "Your patient account has been created. View your health information from the dashboard.",
+          type: "system",
+          read: false,
+          createdAt: Date.now(),
+        });
+      }
+    }
+
     return { success: true };
   },
 });
