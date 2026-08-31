@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router";
 import { useLanguage } from "@/context/LanguageContext";
@@ -54,6 +54,29 @@ export default function Dashboard() {
   const notifications = useQuery(api.notifications.list);
 
   const markAllRead = useMutation(api.notifications.markAllAsRead);
+  const seedDemo = useMutation(api.seed.seedDemoData);
+  const [seeding, setSeeding] = useState(false);
+  const seededRef = useRef(false);
+
+  // Auto-seed demo data when doctor first loads and has no patients
+  useEffect(() => {
+    if (
+      !seededRef.current &&
+      stats !== undefined &&
+      stats !== null &&
+      (stats as { totalPatients?: number }).totalPatients === 0
+    ) {
+      seededRef.current = true;
+      setSeeding(true);
+      seedDemo()
+        .then(() => {
+          setSeeding(false);
+        })
+        .catch(() => {
+          setSeeding(false);
+        });
+    }
+  }, [stats, seedDemo]);
 
   const sidebarItems: {
     icon: typeof LayoutDashboard;
@@ -162,6 +185,12 @@ export default function Dashboard() {
           <h1 className="font-black text-lg">
             {sidebarItems.find((i) => i.key === view)?.label || "Dashboard"}
           </h1>
+          {seeding && (
+            <div className="flex items-center gap-2 text-xs font-bold text-neo-orange ml-4">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Loading demo data...
+            </div>
+          )}
           <div className="ml-auto flex items-center gap-2">
             {unreadNotifs > 0 && (
               <button

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router";
 import { useLanguage } from "@/context/LanguageContext";
@@ -49,6 +49,21 @@ export default function PatientDashboard() {
   const prescriptions = useQuery(api.prescriptions.list, {});
   const notifications = useQuery(api.notifications.list);
   const unreadCount = notifications?.filter((n) => !n.read).length || 0;
+
+  const seedDemo = useMutation(api.seed.seedDemoData);
+  const seededRef = useRef(false);
+
+  // Auto-seed demo data when patient first loads and has no appointments
+  useEffect(() => {
+    if (
+      !seededRef.current &&
+      appointments !== undefined &&
+      appointments.length === 0
+    ) {
+      seededRef.current = true;
+      seedDemo().catch(() => {});
+    }
+  }, [appointments, seedDemo]);
 
   const handleSignOut = async () => {
     await signOut();
