@@ -3,10 +3,14 @@ import { mutation } from "./_generated/server";
 export const seedDemoData = mutation({
   args: {},
   handler: async (ctx) => {
-    // Check if data already exists
-    const existingUsers = await ctx.db.query("users").collect();
-    if (existingUsers.length > 3) {
-      return "Data already seeded";
+    // Check if data already exists - look for any users with the demo emails
+    const existingDoctor = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("email"), "doctor@example.com"))
+      .first();
+    
+    if (existingDoctor) {
+      return "Demo data already exists! Check the Doctors and Patients sections.";
     }
 
     const now = Date.now();
@@ -614,6 +618,6 @@ export const seedDemoData = mutation({
       createdAt: now - 86400000,
     });
 
-    return "Demo data seeded successfully! 2 doctors, 5 patients, 8 appointments, 3 prescriptions, 4 reports, 4 follow-ups, 5 notifications, 3 documents created.";
+    return "Demo data seeded! Refresh the page to see doctors and patients. Then log in as Doctor to see the full dashboard.";
   },
 });

@@ -29,9 +29,9 @@ export default function AdminDashboard() {
   const [view, setView] = useState<View>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const doctors = useQuery(api.doctors.list, {});
-  const patients = useQuery(api.patients.list, {});
-  const notifications = useQuery(api.notifications.list);
+  const doctors = useQuery(api.admin.getAllDoctors);
+  const patients = useQuery(api.admin.getAllPatients);
+  const notifications = useQuery(api.admin.getAllNotifications);
 
   const handleSignOut = async () => {
     await signOut();
@@ -163,6 +163,8 @@ function OverviewView({
     try {
       const result = await seedDemo();
       setSeedStatus(String(result));
+      // Force page refresh to show new data
+      setTimeout(() => window.location.reload(), 2000);
     } catch (err) {
       setSeedStatus(String(err));
     }
