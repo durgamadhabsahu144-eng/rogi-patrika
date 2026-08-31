@@ -64,7 +64,7 @@ export default function AdminDashboard() {
             <div className="w-8 h-8 bg-neo-blue border-2 border-foreground flex items-center justify-center">
               <Leaf className="w-4 h-4" />
             </div>
-            <span className="font-black text-sm">CareConnect</span>
+            <span className="font-black text-sm">CareSync Pro</span>
           </div>
           <button
             className="lg:hidden p-1"
@@ -232,7 +232,7 @@ function OverviewView({
       <div className="neo-border-sm p-4 bg-muted/50">
         <p className="text-xs font-bold">System Information</p>
         <p className="text-xs text-muted-foreground mt-1">
-          CareConnect v1.0 — SIH 2026 Problem Statement 47 — Patient
+          CareSync Pro v1.0 — SIH 2026 Problem Statement 47 — Patient
           Case-Taking Software for Ayurvedic Practitioners
         </p>
       </div>

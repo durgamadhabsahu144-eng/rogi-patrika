@@ -58,7 +58,7 @@ export default function PatientDashboard() {
             <div className="w-8 h-8 bg-neo-green border-2 border-foreground flex items-center justify-center">
               <Leaf className="w-4 h-4" />
             </div>
-            <span className="font-black text-sm">CareConnect</span>
+            <span className="font-black text-sm">CareSync Pro</span>
           </div>
           <div className="flex items-center gap-2">
             {languages.map((lang) => (
@@ -426,7 +426,7 @@ function VoiceView({ t, setView }: { t: (key: string) => string; setView: (v: Vi
       )}
       {response && (
         <div className="neo-card bg-neo-green/20 p-4">
-          <p className="text-xs font-bold text-muted-foreground mb-1">CareConnect says:</p>
+          <p className="text-xs font-bold text-muted-foreground mb-1">CareSync Pro says:</p>
           <p className="text-sm font-medium">{response}</p>
           <button onClick={handleSpeak} className="mt-2 text-xs font-bold flex items-center gap-1">🔊 Speak aloud</button>
           <p className="text-[10px] text-muted-foreground mt-2 italic">{t("ai.disclaimer")}</p>

@@ -124,8 +124,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <Leaf className="w-6 h-6" />
           </div>
           <div>
-            <p className="font-black text-xl tracking-tight">CareConnect</p>
-            <p className="text-xs text-muted-foreground">Patient Case-Taking</p>
+            <p className="font-black text-xl tracking-tight">CareSync Pro</p>
+            <p className="text-xs text-muted-foreground">Connected Patient Care</p>
           </div>
         </div>
 

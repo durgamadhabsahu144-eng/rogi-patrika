@@ -95,7 +95,7 @@ export default function Dashboard() {
             <div className="w-8 h-8 bg-neo-yellow border-2 border-foreground flex items-center justify-center">
               <Leaf className="w-4 h-4" />
             </div>
-            <span className="font-black text-sm">CareConnect</span>
+            <span className="font-black text-sm">CareSync Pro</span>
           </div>
           <button
             className="lg:hidden p-1"
@@ -492,6 +492,7 @@ function AppointmentsView() {
   const { t } = useLanguage();
   const appointments = useQuery(api.appointments.list, {});
   const patients = useQuery(api.patients.list, {});
+  const doctorProfile = useQuery(api.doctors.getMyProfile);
   const updateAppointment = useMutation(api.appointments.update);
   const createAppointment = useMutation(api.appointments.create);
   const [showAdd, setShowAdd] = useState(false);
@@ -504,15 +505,11 @@ function AppointmentsView() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.patientId || !form.date || !form.time) return;
+    if (!form.patientId || !form.date || !form.time || !doctorProfile?._id) return;
     try {
-      // Find the doctor profile for the current user
-      const doctorProfile = await fetch("/api/doctor-profile").catch(() => null);
-      // For now, we need the doctorId from somewhere - we'll use a workaround
-      // Actually we need to get it from the query
       await createAppointment({
         patientId: form.patientId as Id<"patients">,
-        doctorId: "placeholder" as Id<"doctors">,
+        doctorId: doctorProfile._id as Id<"doctors">,
         date: form.date,
         time: form.time,
         reason: form.reason || undefined,
@@ -563,35 +560,39 @@ function AppointmentsView() {
       {showAdd && (
         <div className="neo-card p-6">
           <h3 className="font-black text-lg mb-4">Schedule Appointment</h3>
-          <form onSubmit={handleCreate} className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-bold block mb-1">Patient *</label>
-                <select className="neo-input w-full py-2 px-3" value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} required>
-                  <option value="">Select patient</option>
-                  {patients?.map((p) => (
-                    <option key={p._id} value={p._id}>{p.userName || "Unknown"}</option>
-                  ))}
-                </select>
+          {!doctorProfile?._id ? (
+            <p className="text-sm text-muted-foreground">Loading your profile...</p>
+          ) : (
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-bold block mb-1">Patient *</label>
+                  <select className="neo-input w-full py-2 px-3" value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} required>
+                    <option value="">Select patient</option>
+                    {patients?.map((p) => (
+                      <option key={p._id} value={p._id}>{p.userName || "Unknown"}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-bold block mb-1">Date *</label>
+                  <Input type="date" className="neo-input" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="text-sm font-bold block mb-1">Time *</label>
+                  <Input type="time" className="neo-input" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="text-sm font-bold block mb-1">Reason</label>
+                  <Input className="neo-input" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
+                </div>
               </div>
-              <div>
-                <label className="text-sm font-bold block mb-1">Date *</label>
-                <Input type="date" className="neo-input" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
+              <div className="flex gap-3">
+                <Button type="submit" className="neo-btn bg-foreground text-background font-bold">{t("common.save")}</Button>
+                <Button type="button" variant="outline" className="neo-btn font-bold" onClick={() => setShowAdd(false)}>{t("common.cancel")}</Button>
               </div>
-              <div>
-                <label className="text-sm font-bold block mb-1">Time *</label>
-                <Input type="time" className="neo-input" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required />
-              </div>
-              <div>
-                <label className="text-sm font-bold block mb-1">Reason</label>
-                <Input className="neo-input" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button type="submit" className="neo-btn bg-foreground text-background font-bold">{t("common.save")}</Button>
-              <Button type="button" variant="outline" className="neo-btn font-bold" onClick={() => setShowAdd(false)}>{t("common.cancel")}</Button>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
       )}
 

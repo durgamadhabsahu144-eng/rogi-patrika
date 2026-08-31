@@ -119,7 +119,7 @@ export default function Landing() {
               <div className="w-10 h-10 bg-neo-yellow border-2 border-foreground flex items-center justify-center">
                 <Leaf className="w-5 h-5" />
               </div>
-              <span className="font-bold text-lg tracking-tight">CareConnect</span>
+              <span className="font-bold text-lg tracking-tight">CareSync Pro</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -378,9 +378,9 @@ export default function Landing() {
       {/* Footer */}
       <footer className="bg-foreground text-background py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="font-bold text-sm mb-2">CareConnect — SIH 2026</p>
+          <p className="font-bold text-sm mb-2">CareSync Pro — SIH 2026</p>
           <p className="text-xs opacity-70 mb-4">
-            Patient Case-Taking Software for Ayurvedic Practitioners
+            Connected Patient Care for Ayurvedic Practitioners
           </p>
           <div className="inline-block px-4 py-2 border border-background/30 text-xs">
             AI assists healthcare professionals; it does not replace medical
