@@ -863,7 +863,7 @@ function DocumentsView() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm">{String(doc.fileName)}</p>
-                    {doc.description ? (
+                    {!!doc.description ? (
                       <p className="text-xs text-muted-foreground">
                         {String(doc.description)}
                       </p>
@@ -881,7 +881,7 @@ function DocumentsView() {
                     ) : null}
                   </div>
                   {/* Show thumbnail for images */}
-                  {doc.fileUrl && String(doc.fileUrl).startsWith("data:image") ? (
+                  {!!doc.fileUrl && String(doc.fileUrl).startsWith("data:image") ? (
                     <div className="w-20 h-20 border-2 border-foreground overflow-hidden shrink-0">
                       <img
                         src={String(doc.fileUrl)}
