@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { DocumentUploadWithCamera } from "@/components/CameraCapture";
+import IntakeForm from "@/components/IntakeForm";
 
 type View =
   | "dashboard"
@@ -211,7 +212,7 @@ export default function Dashboard() {
           {view === "patients" && <PatientsView />}
           {view === "appointments" && <AppointmentsView />}
           {view === "prescriptions" && <PrescriptionsView />}
-          {view === "records" && <RecordsView />}
+          {view === "records" && <RecordsView doctorProfile={doctorProfile} />}
           {view === "reports" && <ReportsView />}
           {view === "followups" && <FollowupsView />}
           {view === "documents" && <DocumentsView />}
@@ -368,11 +369,16 @@ function PatientsView() {
       )
     : patients;
 
+  const doctorProfile2 = useQuery(api.doctors.getMyProfile);
+
   const handleAddPatient = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await createPatient(form);
+      await createPatient({
+        ...form,
+        assignedDoctorId: doctorProfile2?._id as Id<"doctors"> | undefined,
+      });
       setShowAdd(false);
       setForm({ name: "", email: "", phone: "", gender: "", dateOfBirth: "", bloodGroup: "", allergies: "", existingConditions: "", currentMedications: "", notes: "" });
     } catch (err) {
@@ -739,9 +745,10 @@ function PrescriptionsView() {
 }
 
 /* ─── Records View ─── */
-function RecordsView() {
+function RecordsView({ doctorProfile }: { doctorProfile: Record<string, unknown> | null | undefined }) {
   const patients = useQuery(api.patients.list, {});
   const [selectedId, setSelectedId] = useState<string | "">("");
+  const [showIntakeForm, setShowIntakeForm] = useState(false);
   const records = useQuery(
     api.medical_records.list,
     selectedId ? { patientId: selectedId as Id<"patients"> } : "skip"
@@ -795,15 +802,34 @@ function RecordsView() {
         </div>
       )}
 
-      {selectedId && records && records.length === 0 && (
+      {selectedId && !showIntakeForm && records && records.length === 0 && (
         <div className="health-card-static p-12 text-center">
           <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
           <p className="font-semibold text-[#0F172A]">No medical records</p>
-          <p className="text-sm text-[#64748B]">No records found for this patient yet.</p>
+          <p className="text-sm text-[#64748B]">No records found for this patient yet. Start by filling out an intake assessment above.</p>
         </div>
       )}
 
-      {selectedId && records && records.length > 0 && (
+      {selectedId && (
+        <div className="flex gap-2 mb-2">
+          <button
+            onClick={() => setShowIntakeForm(!showIntakeForm)}
+            className="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all bg-[#7C3AED] text-white"
+          >
+            {showIntakeForm ? "← Back to Records" : "🔍 Open Intake Assessment"}
+          </button>
+        </div>
+      )}
+
+      {selectedId && showIntakeForm && (
+        <IntakeForm
+          patientId={selectedId}
+          isDoctorReview={true}
+          onComplete={() => setShowIntakeForm(false)}
+        />
+      )}
+
+      {selectedId && !showIntakeForm && records && records.length > 0 && (
         <div className="space-y-3">
           <p className="text-sm text-[#64748B] font-medium">
             {records.length} Record{records.length !== 1 ? "s" : ""} Found

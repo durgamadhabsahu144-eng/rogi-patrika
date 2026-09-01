@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { DocumentUploadWithCamera } from "@/components/CameraCapture";
+import IntakeForm from "@/components/IntakeForm";
+import { ClipboardList } from "lucide-react";
 
 const languages = [
   { code: "en" as const, label: "English" },
@@ -37,7 +39,8 @@ type View =
   | "followups"
   | "voice"
   | "notifications"
-  | "documents";
+  | "documents"
+  | "intake";
 
 export default function PatientDashboard() {
   const { user, signOut } = useAuth();
@@ -134,6 +137,7 @@ export default function PatientDashboard() {
             setView={setView}
           />
         )}
+        {view === "intake" && <IntakeFormView t={t} setView={setView} />}
       </main>
     </div>
   );
@@ -159,6 +163,7 @@ function HomeView({
     { icon: FileText, label: t("patient.myReports"), view: "reports" as View, color: "bg-[#FEF3C7] text-[#D97706]" },
     { icon: Clock, label: t("patient.myFollowups"), view: "followups" as View, color: "bg-[#EDE9FE] text-[#7C3AED]" },
     { icon: Camera, label: language === "hi" ? "मेरे दस्तावेज़" : language === "or" ? "ମୋର ଦସ୍ତାବିଜ୍" : "My Documents", view: "documents" as View, color: "bg-[#CCFBF1] text-[#0D9488]" },
+    { icon: ClipboardList, label: language === "hi" ? "स्वास्थ्य मूल्यांकन" : language === "or" ? "ସ୍ୱାସ୍ଥ୍ୟ ମୂଲ୍ୟାୟନ" : "Health Assessment", view: "intake" as View, color: "bg-[#EDE9FE] text-[#7C3AED]" },
     { icon: Bell, label: t("patient.notifications"), view: "notifications" as View, color: "bg-[#F1F5F9] text-[#64748B]", count: unreadCount },
   ];
 
@@ -637,6 +642,66 @@ function NotificationsView({
             </div>
           </div>
         ))
+      )}
+    </div>
+  );
+}
+
+/* ─── Intake Form View ─── */
+function IntakeFormView({
+  t,
+  setView,
+}: {
+  t: (key: string) => string;
+  setView: (v: View) => void;
+}) {
+  const patientProfile = useQuery(api.patients.getMyProfile);
+  const [saved, setSaved] = useState(false);
+
+  if (patientProfile === undefined) {
+    return (
+      <div className="flex items-center gap-3 py-20">
+        <div className="w-6 h-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+        <span className="text-[#64748B]">{t("common.loading")}</span>
+      </div>
+    );
+  }
+
+  if (!patientProfile) {
+    return (
+      <div className="health-card-static p-12 text-center">
+        <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+        <p className="font-semibold text-[#0F172A] mb-1">Profile Required</p>
+        <p className="text-sm text-[#64748B]">
+          Please complete your patient profile first to access the health assessment form.
+        </p>
+        <button onClick={() => setView("home")} className="mt-4 px-4 py-2 bg-[#2563EB] text-white rounded-lg text-sm font-semibold">
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
+        <ChevronLeft className="w-4 h-4" /> {t("common.back")}
+      </button>
+      <div className="bg-[#EDE9FE] border border-[#C4B5FD] rounded-xl p-4">
+        <p className="text-sm font-semibold text-[#5B21B6]">📋 SIH PS 26047 — Ayurvedic Health Assessment</p>
+        <p className="text-xs text-[#6D28D9] mt-0.5">
+          Fill in your health details below. Your doctor will review and verify this information.
+        </p>
+      </div>
+      <IntakeForm
+        patientId={patientProfile._id}
+        onComplete={() => setSaved(true)}
+      />
+      {saved && (
+        <div className="bg-[#D1FAE5] border border-[#6EE7B7] rounded-xl p-4 text-center">
+          <p className="text-sm font-semibold text-[#059669]">✓ Assessment saved successfully!</p>
+          <p className="text-xs text-[#047857] mt-1">Your doctor will review this during your next visit.</p>
+        </div>
       )}
     </div>
   );
