@@ -8,13 +8,13 @@ export default function Download() {
   const handleDownload = useCallback(async () => {
     setStatus("loading");
     try {
-      const res = await fetch("/CareSync-Pro.zip");
+      const res = await fetch("/RogiPatrika.zip");
       if (!res.ok) throw new Error("Failed to fetch zip");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "CareSync-Pro.zip";
+      a.download = "RogiPatrika.zip";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

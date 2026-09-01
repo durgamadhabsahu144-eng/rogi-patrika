@@ -96,7 +96,7 @@ function RootLoading() {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex items-center gap-3">
         <Loader2 className="h-6 w-6 animate-spin" />
-        <span className="text-sm font-medium">Loading CareConnect...</span>
+        <span className="text-sm font-medium">Loading RogiPatrika...</span>
       </div>
     </div>
   );

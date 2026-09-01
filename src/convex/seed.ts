@@ -618,7 +618,7 @@ export const seedDemoData = mutation({
       userId: doctor1UserId,
       specialization: "Ayurvedic Medicine & Panchakarma",
       licenseNumber: "AYU-2024-001",
-      hospital: "CareSync Health Center",
+      hospital: "RogiPatrika Health Center",
       phone: "+91-9876543210",
       bio: "Experienced Ayurvedic practitioner.",
     });
@@ -633,7 +633,7 @@ export const seedDemoData = mutation({
       userId: doctor2UserId,
       specialization: "Kayachikitsa (Internal Medicine)",
       licenseNumber: "AYU-2024-002",
-      hospital: "CareSync Health Center",
+      hospital: "RogiPatrika Health Center",
       phone: "+91-9876543220",
     });
 

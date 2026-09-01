@@ -85,9 +85,9 @@ export const translations: Record<string, Record<Language, string>> = {
 
   // Landing page
   "landing.heroTitle": {
-    en: "CareConnect",
-    hi: "CareConnect",
-    or: "CareConnect",
+    en: "RogiPatrika",
+    hi: "RogiPatrika",
+    or: "RogiPatrika",
   },
   "landing.heroSubtitle": {
     en: "Patient Case-Taking Software",
