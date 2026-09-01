@@ -740,11 +740,196 @@ function PrescriptionsView() {
 
 /* ─── Records View ─── */
 function RecordsView() {
+  const patients = useQuery(api.patients.list, {});
+  const [selectedId, setSelectedId] = useState<string | "">("");
+  const records = useQuery(
+    api.medical_records.list,
+    selectedId ? { patientId: selectedId as Id<"patients"> } : "skip"
+  );
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  if (patients === undefined) {
+    return (
+      <div className="flex items-center gap-3 py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+        <span className="text-[#64748B]">Loading patients...</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="health-card-static p-12 text-center">
-      <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
-      <p className="font-semibold text-[#0F172A] mb-1">Medical Records</p>
-      <p className="text-sm text-[#64748B]">Select a patient from the Patients tab to view their medical records.</p>
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="flex-1">
+          <label className="text-sm font-medium text-[#334155] block mb-1">Select Patient</label>
+          <select
+            className="health-input w-full py-2 px-3 rounded-xl"
+            value={selectedId}
+            onChange={(e) => {
+              setSelectedId(e.target.value);
+              setExpandedId(null);
+            }}
+          >
+            <option value="">All patients</option>
+            {patients?.map((p) => (
+              <option key={p._id} value={p._id}>
+                {p.userName || "Patient"}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {records === undefined && selectedId && (
+        <div className="flex items-center gap-3 py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" />
+          <span className="text-[#64748B]">Loading records...</span>
+        </div>
+      )}
+
+      {!selectedId && (
+        <div className="health-card-static p-12 text-center">
+          <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A] mb-1">Medical Records</p>
+          <p className="text-sm text-[#64748B]">Select a patient from the dropdown above to view their medical records.</p>
+        </div>
+      )}
+
+      {selectedId && records && records.length === 0 && (
+        <div className="health-card-static p-12 text-center">
+          <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">No medical records</p>
+          <p className="text-sm text-[#64748B]">No records found for this patient yet.</p>
+        </div>
+      )}
+
+      {selectedId && records && records.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-sm text-[#64748B] font-medium">
+            {records.length} Record{records.length !== 1 ? "s" : ""} Found
+          </p>
+          {records.map((rec) => (
+            <div
+              key={rec._id}
+              className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+            >
+              <button
+                type="button"
+                onClick={() => setExpandedId(expandedId === rec._id ? null : rec._id)}
+                className="w-full p-4 flex items-center gap-3 text-left hover:bg-slate-50 transition-colors"
+              >
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                  rec.type === "consultation"
+                    ? "bg-blue-100"
+                    : rec.type === "follow-up"
+                      ? "bg-amber-100"
+                      : rec.type === "lab-review"
+                        ? "bg-emerald-100"
+                        : "bg-red-100"
+                }`}>
+                  <ClipboardList className={`w-5 h-5 ${
+                    rec.type === "consultation"
+                      ? "text-blue-600"
+                      : rec.type === "follow-up"
+                        ? "text-amber-600"
+                        : rec.type === "lab-review"
+                          ? "text-emerald-600"
+                          : "text-red-600"
+                  }`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-[#0F172A] truncate">
+                    {rec.title}
+                  </p>
+                  <p className="text-xs text-[#64748B]">
+                    {rec.type.charAt(0).toUpperCase() + rec.type.slice(1).replace("-", " ")} · {new Date(rec.createdAt).toLocaleDateString()}
+                    {rec.doctorName ? ` · Dr. ${rec.doctorName}` : ""}
+                  </p>
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide ${
+                  rec.type === "consultation"
+                    ? "bg-blue-100 text-blue-700"
+                    : rec.type === "follow-up"
+                      ? "bg-amber-100 text-amber-700"
+                      : rec.type === "lab-review"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-red-100 text-red-700"
+                }`}>
+                  {rec.type.replace("-", " ")}
+                </span>
+              </button>
+
+              {expandedId === rec._id && (
+                <div className="px-4 pb-4 border-t border-slate-100 pt-3 space-y-3">
+                  {rec.symptoms && (
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Symptoms</p>
+                      <p className="text-sm text-[#0F172A]">{rec.symptoms}</p>
+                    </div>
+                  )}
+                  {rec.diagnosis && (
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Diagnosis</p>
+                      <p className="text-sm text-[#0F172A] font-medium">{rec.diagnosis}</p>
+                    </div>
+                  )}
+                  {rec.assessment && (
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Assessment</p>
+                      <p className="text-sm text-[#0F172A]">{rec.assessment}</p>
+                    </div>
+                  )}
+                  {rec.ayurvedaPrakriti && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-purple-50 rounded-lg p-2">
+                        <p className="text-[10px] font-bold text-purple-700 uppercase">Prakriti</p>
+                        <p className="text-sm text-purple-900">{rec.ayurvedaPrakriti}</p>
+                      </div>
+                      {rec.ayurvedaVikriti && (
+                        <div className="bg-orange-50 rounded-lg p-2">
+                          <p className="text-[10px] font-bold text-orange-700 uppercase">Vikriti</p>
+                          <p className="text-sm text-orange-900">{rec.ayurvedaVikriti}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {rec.lifestyleNotes && (
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Lifestyle</p>
+                      <p className="text-sm text-[#0F172A]">{rec.lifestyleNotes}</p>
+                    </div>
+                  )}
+                  {rec.dietNotes && (
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Diet</p>
+                      <p className="text-sm text-[#0F172A]">{rec.dietNotes}</p>
+                    </div>
+                  )}
+                  {rec.treatmentPlan && (
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Treatment Plan</p>
+                      <p className="text-sm text-[#0F172A] font-medium">{rec.treatmentPlan}</p>
+                    </div>
+                  )}
+                  {rec.herbMedicineSuggestions && (
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Herb Suggestions</p>
+                      <p className="text-sm text-[#0F172A]">{rec.herbMedicineSuggestions}</p>
+                    </div>
+                  )}
+                  {rec.aiGeneratedSummary && (
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <p className="text-[10px] font-bold text-blue-700 uppercase mb-1">🤖 AI Summary</p>
+                      <p className="text-xs text-blue-900">{rec.aiGeneratedSummary}</p>
+                      <p className="text-[10px] text-blue-500 mt-1 italic">AI-generated — verify with healthcare professional.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
