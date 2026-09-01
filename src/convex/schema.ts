@@ -180,6 +180,19 @@ const schema = defineSchema(
       .index("by_doctorId", ["doctorId"])
       .index("by_date", ["date"]),
 
+    // SIH PS 26047 — Ayurvedic Intake Forms
+    intake_forms: defineTable({
+      patientId: v.id("patients"),
+      submittedBy: v.union(v.literal("doctor"), v.literal("patient")),
+      formData: v.any(),
+      verified: v.boolean(),
+      verifiedBy: v.optional(v.string()),
+      verifiedAt: v.optional(v.number()),
+      createdAt: v.number(),
+      updatedAt: v.number(),
+    })
+      .index("by_patientId", ["patientId"]),
+
     // Notifications
     notifications: defineTable({
       userId: v.id("users"),
