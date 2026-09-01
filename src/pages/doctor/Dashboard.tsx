@@ -350,6 +350,7 @@ function PatientsView() {
     bloodGroup: "", allergies: "", existingConditions: "",
     currentMedications: "", notes: "",
   });
+  const doctorProfile2 = useQuery(api.doctors.getMyProfile);
 
   if (patients === undefined) {
     return (
@@ -368,8 +369,6 @@ function PatientsView() {
           p.phone?.toLowerCase().includes(search.toLowerCase())
       )
     : patients;
-
-  const doctorProfile2 = useQuery(api.doctors.getMyProfile);
 
   const handleAddPatient = async (e: React.FormEvent) => {
     e.preventDefault();
