@@ -78,7 +78,7 @@ export default function PatientDashboard() {
             <div className="w-8 h-8 bg-[#059669] rounded-lg flex items-center justify-center">
               <Leaf className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-sm text-[#0F172A]">CareSync Pro</span>
+            <span className="font-bold text-sm text-[#0F172A]">RogiPatrika</span>
           </div>
           <div className="flex items-center gap-1.5 bg-[#F1F5F9] rounded-lg p-1">
             {languages.map((lang) => (
@@ -581,7 +581,7 @@ function VoiceView({ t, setView }: { t: (key: string) => string; setView: (v: Vi
       )}
       {response && (
         <div className="bg-[#D1FAE5] border border-[#A7F3D0] rounded-xl p-4">
-          <p className="text-xs font-semibold text-[#059669] mb-1">CareSync Pro says:</p>
+          <p className="text-xs font-semibold text-[#059669] mb-1">RogiPatrika says:</p>
           <p className="text-sm font-medium text-[#065F46]">{response}</p>
           <button onClick={handleSpeak} className="mt-2 text-xs font-semibold text-[#059669] flex items-center gap-1 hover:underline">🔊 Speak aloud</button>
           <p className="text-[10px] text-[#059669]/70 mt-2 italic">{t("ai.disclaimer")}</p>

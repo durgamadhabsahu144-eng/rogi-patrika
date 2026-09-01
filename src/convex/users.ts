@@ -39,7 +39,7 @@ export const setMyRole = mutation({
         await ctx.db.insert("doctors", {
           userId,
           specialization: "General Medicine",
-          hospital: "CareSync Pro Hospital",
+          hospital: "RogiPatrika Hospital",
         });
       }
     } else if (args.role === "patient") {
@@ -55,7 +55,7 @@ export const setMyRole = mutation({
         // Create notification
         await ctx.db.insert("notifications", {
           userId,
-          title: "Welcome to CareSync Pro",
+          title: "Welcome to RogiPatrika",
           message: "Your patient account has been created. View your health information from the dashboard.",
           type: "system",
           read: false,

@@ -158,7 +158,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <Leaf className="w-6 h-6 text-white" />
           </div>
           <div>
-            <p className="font-bold text-xl tracking-tight text-[#0F172A]">CareSync Pro</p>
+            <p className="font-bold text-xl tracking-tight text-[#0F172A]">RogiPatrika</p>
             <p className="text-xs text-[#64748B]">Connected Patient Care</p>
           </div>
         </div>
@@ -168,7 +168,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <div>
             <h1 className="text-2xl font-bold mb-1 text-[#0F172A]">Select your role</h1>
             <p className="text-sm text-[#64748B] mb-6">
-              Choose how you want to sign in to CareSync Pro
+              Choose how you want to sign in to RogiPatrika
             </p>
             <div className="space-y-3">
               {(["doctor", "patient", "admin"] as Role[]).map((role) => {

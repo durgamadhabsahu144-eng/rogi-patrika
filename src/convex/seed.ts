@@ -60,7 +60,7 @@ export const seedDemoData = mutation({
         const profileId = await ctx.db.insert("doctors", {
           userId,
           specialization: "General Medicine",
-          hospital: "CareSync Pro Hospital",
+          hospital: "RogiPatrika Hospital",
         });
         doctorProfile = await ctx.db.get(profileId);
       }
@@ -483,7 +483,7 @@ export const seedDemoData = mutation({
       const doctorProfileId = await ctx.db.insert("doctors", {
         userId: doctorUserId,
         specialization: "Ayurvedic Medicine",
-        hospital: "CareSync Pro Hospital",
+        hospital: "RogiPatrika Hospital",
         phone: "+91-9876543210",
       });
 
@@ -578,7 +578,7 @@ export const seedDemoData = mutation({
       // Notifications
       await ctx.db.insert("notifications", {
         userId,
-        title: "Welcome to CareSync Pro",
+        title: "Welcome to RogiPatrika",
         message: "Your health dashboard is ready. View appointments, prescriptions, and reports.",
         type: "system",
         read: false,

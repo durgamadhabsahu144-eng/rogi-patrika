@@ -28,7 +28,7 @@ export default function Download() {
   return (
     <div className="min-h-screen bg-[#FFFEF2] flex items-center justify-center p-8">
       <div className="bg-white border-2 border-black shadow-[4px_4px_0px_0px_#000] p-8 max-w-lg w-full text-center">
-        <h1 className="text-2xl font-bold mb-4">📦 CareSync Pro — Source Code</h1>
+        <h1 className="text-2xl font-bold mb-4">📦 RogiPatrika — Source Code</h1>
         <p className="text-sm mb-6">
           Download the complete project source code as a zip file.
         </p>

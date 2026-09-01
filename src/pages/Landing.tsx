@@ -130,7 +130,7 @@ export default function Landing() {
                 <Leaf className="w-5 h-5 text-white" />
               </div>
               <span className="font-bold text-lg tracking-tight text-[#0F172A]">
-                CareSync Pro
+                RogiPatrika
               </span>
             </div>
 
@@ -419,7 +419,7 @@ export default function Landing() {
             Ready to get started?
           </h2>
           <p className="text-[#64748B] mb-8 max-w-lg mx-auto">
-            Join healthcare professionals who are transforming patient care with CareSync Pro.
+            Join healthcare professionals who are transforming patient care with RogiPatrika.
           </p>
           <Button
             size="lg"
@@ -439,7 +439,7 @@ export default function Landing() {
             <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center">
               <Leaf className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-lg">CareSync Pro</span>
+            <span className="font-bold text-lg">RogiPatrika</span>
           </div>
           <p className="text-sm text-[#94A3B8] mb-4">
             Connected Patient Care for Ayurvedic Practitioners
@@ -448,7 +448,7 @@ export default function Landing() {
             <Brain className="w-3.5 h-3.5" />
             AI assists healthcare professionals; it does not replace medical judgment.
           </div>
-          <p className="text-xs text-[#475569] mt-6">© 2026 CareSync Pro · SIH 2026</p>
+          <p className="text-xs text-[#475569] mt-6">© 2026 RogiPatrika · SIH 2026</p>
         </div>
       </footer>
     </div>

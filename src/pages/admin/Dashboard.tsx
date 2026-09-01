@@ -65,7 +65,7 @@ export default function AdminDashboard() {
             <div className="w-8 h-8 bg-[#7C3AED] rounded-lg flex items-center justify-center">
               <Leaf className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-sm text-[#0F172A]">CareSync Pro</span>
+            <span className="font-bold text-sm text-[#0F172A]">RogiPatrika</span>
           </div>
           <button
             className="lg:hidden p-1 rounded-lg hover:bg-[#F1F5F9] transition-colors"
@@ -241,7 +241,7 @@ function OverviewView({
       <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4">
         <p className="text-xs font-semibold text-[#0F172A]">System Information</p>
         <p className="text-xs text-[#64748B] mt-1">
-          CareSync Pro v1.0 — SIH 2026 Problem Statement 47 — Patient
+          RogiPatrika v1.0 — SIH 2026 Problem Statement 47 — Patient
           Case-Taking Software for Ayurvedic Practitioners
         </p>
       </div>
