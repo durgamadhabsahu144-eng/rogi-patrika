@@ -16,7 +16,6 @@ const AdminDashboard = lazy(
   () => import("./pages/admin/Dashboard")
 );
 const NotFound = lazy(() => import("./pages/NotFound"));
-const Download = lazy(() => import("./pages/Download"));
 
 function RouteLoading() {
   return (
@@ -63,7 +62,6 @@ export default function AppRoutes() {
               </RequireAuth>
             }
           />
-          <Route path="/download" element={<Download />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
