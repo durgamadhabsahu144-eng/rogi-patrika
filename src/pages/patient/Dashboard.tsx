@@ -19,11 +19,11 @@ import {
   Camera,
   Upload,
   X,
+  ClipboardList,
 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { DocumentUploadWithCamera } from "@/components/CameraCapture";
 import IntakeForm from "@/components/IntakeForm";
-import { ClipboardList } from "lucide-react";
 
 const languages = [
   { code: "en" as const, label: "English" },
