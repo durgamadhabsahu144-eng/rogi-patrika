@@ -809,10 +809,10 @@ function DocumentsView() {
   const [showUpload, setShowUpload] = useState(false);
   const [capturedDocs, setCapturedDocs] = useState<Array<Record<string, unknown>>>([]);
 
-  useState(() => {
+  useEffect(() => {
     const docs = JSON.parse(localStorage.getItem("captured-docs") || "[]");
     setCapturedDocs(docs);
-  });
+  }, []);
 
   const refreshDocs = () => {
     const docs = JSON.parse(localStorage.getItem("captured-docs") || "[]");

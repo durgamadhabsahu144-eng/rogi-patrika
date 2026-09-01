@@ -366,13 +366,13 @@ function DocumentsView({ t, setView, language }: { t: (key: string) => string; s
     setCapturedDocs(docs);
   };
 
-  useState(() => {
+  useEffect(() => {
     refreshDocs();
-  });
+  }, []);
 
   const patientDocs = patientProfile
     ? capturedDocs.filter((d) => d.patientId === patientProfile._id)
-    : [];
+    : capturedDocs;
 
   return (
     <div className="space-y-4">
@@ -400,13 +400,13 @@ function DocumentsView({ t, setView, language }: { t: (key: string) => string; s
           </div>
         </button>
 
-        {showUpload && patientProfile && (
-          <div className="health-card-static p-6">
+        {showUpload && (
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
             <h3 className="font-semibold text-lg mb-4 text-[#0F172A]">
               {language === "hi" ? "कैमरा या फ़ाइल अपलोड" : language === "or" ? "କ୍ୟାମେରା ବା ଫାଇଲ୍ ଅପଲୋଡ୍" : "Camera or File Upload"}
             </h3>
             <DocumentUploadWithCamera
-              patientId={patientProfile._id}
+              patientId={patientProfile?._id || "guest"}
               onUploaded={() => {
                 setShowUpload(false);
                 refreshDocs();
