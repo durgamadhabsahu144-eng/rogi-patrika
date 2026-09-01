@@ -278,6 +278,127 @@ export const seedDemoData = mutation({
         createdAt: now - 86400000 * 5,
       });
 
+      // ── Additional Medical Records ──
+
+      // Rahul - Follow-up for anxiety
+      await ctx.db.insert("medical_records", {
+        patientId: patient1Id,
+        doctorId: doctorProfile._id,
+        type: "follow-up",
+        title: "Anxiety Follow-Up — Week 4",
+        symptoms: "Improved sleep, reduced restlessness, mild daytime drowsiness",
+        diagnosis: "Vata imbalance — responding to treatment",
+        assessment: "Significant improvement in sleep quality. Vata reducing. Pitta slightly elevated due to summer season.",
+        ayurvedaPrakriti: "Vata-Pitta",
+        ayurvedaVikriti: "Mildly elevated Vata (improved)",
+        lifestyleNotes: "Started meditation 15 min daily. Screen time reduced to 4 hrs.",
+        dietNotes: "Regular meals, reduced caffeine to 1 cup/day. Warm milk at bedtime.",
+        treatmentPlan: "Continue Ashwagandha 500mg twice daily. Add Brahmi ghrita 5ml at bedtime.",
+        herbMedicineSuggestions: "Ashwagandha Churna, Brahmi Ghrita, Saraswatarishta",
+        aiGeneratedSummary: "Patient shows marked improvement in anxiety symptoms after 4 weeks. Sleep quality improved. Recommend continuing current regimen with minor dietary adjustments.",
+        createdAt: now - 86400000 * 1,
+      });
+
+      // Rahul - Lab review
+      await ctx.db.insert("medical_records", {
+        patientId: patient1Id,
+        doctorId: doctorProfile._id,
+        type: "lab-review",
+        title: "Thyroid & Cortisol Panel Review",
+        symptoms: "None — routine check",
+        diagnosis: "Normal thyroid function. Cortisol slightly elevated (stress-related)",
+        assessment: "TSH: 2.8 mIU/L (normal). Free T4: 1.1 ng/dL (normal). Morning cortisol: 18 µg/dL (high-normal, consistent with stress.",
+        treatmentPlan: "No medication change. Continue Ashwagandha for cortisol management. Re-test in 3 months.",
+        aiGeneratedSummary: "Lab results within normal range. Mild cortisol elevation correlating with patient's stress and anxiety. Current Ashwagandha regimen may be helping normalize levels.",
+        createdAt: now - 86400000 * 10,
+      });
+
+      // Anita - Diabetes follow-up
+      await ctx.db.insert("medical_records", {
+        patientId: patient2Id,
+        doctorId: doctorProfile._id,
+        type: "follow-up",
+        title: "Diabetes Management — 3 Month Review",
+        symptoms: "Reduced fatigue, better energy, occasional joint pain",
+        diagnosis: "Prameha (Diabetes) — improving with management",
+        assessment: "HbA1c dropped from 7.8% to 7.2%. Fasting glucose: 138 mg/dL. Post-prandial: 182 mg/dL. Good progress but target not yet met.",
+        ayurvedaPrakriti: "Kapha",
+        ayurvedaVikriti: "Kapha reduced, mild Vata emerging",
+        lifestyleNotes: "Walking 30 min daily. Joined yoga class 2x/week.",
+        dietNotes: "Following low-glycemic diet. Avoiding white rice. Eating millets 4x/week.",
+        treatmentPlan: "Continue Guggul 500mg twice daily. Add Guduchi Satva 500mg. Continue walking.",
+        herbMedicineSuggestions: "Guggulu, Guduchi Satva, Triphala Churna, Vijaysar (Madhunashini)",
+        aiGeneratedSummary: "Patient's diabetes markers showing improvement. HbA1c reduced by 0.6% in 3 months. Lifestyle modifications showing results. Continue current plan with herbal additions.",
+        createdAt: now - 86400000 * 2,
+      });
+
+      // Anita - Lab review
+      await ctx.db.insert("medical_records", {
+        patientId: patient2Id,
+        doctorId: doctorProfile._id,
+        type: "lab-review",
+        title: "Comprehensive Metabolic Panel",
+        symptoms: "None — routine lab work",
+        diagnosis: "Diabetes Type 2 — moderately controlled",
+        assessment: "Fasting Blood Sugar: 138 mg/dL (high). Post Meal: 182 mg/dL (high). HbA1c: 7.2% (improved from 7.8%). Creatinine: 0.9 mg/dL (normal). Lipid panel: Total cholesterol 210 (borderline high).",
+        treatmentPlan: "Add Vijaysar churna for lipid management. Re-check lipids in 2 months. Continue diabetes management.",
+        aiGeneratedSummary: "Lab work shows improving diabetes control. Cholesterol borderline — recommend dietary modification and herbal support.",
+        createdAt: now - 86400000 * 8,
+      });
+
+      // Suresh - Hypertension follow-up
+      await ctx.db.insert("medical_records", {
+        patientId: patient3Id,
+        doctorId: doctorProfile._id,
+        type: "follow-up",
+        title: "Hypertension Follow-Up — BP Monitoring",
+        symptoms: "Occasional morning headache, manageable stress",
+        diagnosis: "Rakta Gata Vata — BP slightly improved",
+        assessment: "BP readings this week: 142/92, 138/88, 145/90, 136/86, 140/89. Average: 140/89 mmHg. Improved from initial 152/96. Target: below 130/80.",
+        ayurvedaPrakriti: "Pitta",
+        ayurvedaVikriti: "Pitta-Vata (improving)",
+        lifestyleNotes: "Started morning walks 20 min. Reduced work hours slightly.",
+        dietNotes: "Low salt diet. Garlic in cooking. Drumstick soup 3x/week. No alcohol.",
+        treatmentPlan: "Continue Saptamrita Lauha. Add Arjuna Ksheerapaka. Continue BP monitoring at home.",
+        herbMedicineSuggestions: "Saptamrita Lauha, Arjuna, Sariva, Jatamansi, Brahmi",
+        aiGeneratedSummary: "BP trending downward with lifestyle changes and herbal support. Patient adherent to treatment. Continue current plan, target below 130/80.",
+        createdAt: now - 86400000 * 1,
+      });
+
+      // Suresh - Stress assessment
+      await ctx.db.insert("medical_records", {
+        patientId: patient3Id,
+        doctorId: doctorProfile._id,
+        type: "consultation",
+        title: "Stress & Mental Health Assessment",
+        symptoms: "Work-related stress, mild irritability, difficulty unwinding at night",
+        diagnosis: "Pitta-Vata aggravation due to occupational stress",
+        assessment: "Pitta aggravation causing irritability and hypertension. Vata contributing to sleep issues. Need stress management alongside BP treatment.",
+        ayurvedaPrakriti: "Pitta",
+        ayurvedaVikriti: "Pitta elevated, Vata mildly elevated",
+        lifestyleNotes: "High-pressure IT job. Screen time 10+ hrs. No exercise routine yet.",
+        dietNotes: "Skipping breakfast often. Heavy dinners. High tea intake (4-5 cups).",
+        treatmentPlan: "Shirodhara recommended (1 session/week for 4 weeks). Reduce caffeine. Add Brahmi + Jatamansi at bedtime. Guided Pranayama.",
+        herbMedicineSuggestions: "Brahmi, Jatamansi, Shankhpushpi, Sarpagandha, Brahmi Vati",
+        aiGeneratedSummary: "Occupational stress contributing to both hypertension and sleep issues. Recommending Shirodhara therapy alongside herbal nervines. Reduce caffeine intake.",
+        createdAt: now - 86400000 * 4,
+      });
+
+      // Rahul - Allergy episode
+      await ctx.db.insert("medical_records", {
+        patientId: patient1Id,
+        doctorId: doctorProfile._id,
+        type: "emergency",
+        title: "Seasonal Allergy Episode",
+        symptoms: "Sneezing, runny nose, itchy eyes, mild wheezing",
+        diagnosis: "Vata-Kapha seasonal allergy (秋季过敏)",
+        assessment: "Pollen season triggered allergic rhinitis. Mild lower respiratory involvement. No fever.",
+        treatmentPlan: "Haridra (Turmeric) 500mg 3x daily. Nasal irrigation with saline. Triphala eye wash. Avoid cold foods.",
+        herbMedicineSuggestions: "Haridra, Triphala, Pippali, Sitopaladi Churna, Lavanga",
+        aiGeneratedSummary: "Seasonal allergic rhinitis with mild wheezing. Responding to turmeric and traditional Ayurvedic nasal care. No antibiotics needed.",
+        createdAt: now - 86400000 * 12,
+      });
+
       // Prescriptions
       const rx1 = await ctx.db.insert("prescriptions", {
         patientId: patient1Id,
