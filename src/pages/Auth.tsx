@@ -48,7 +48,6 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // If already authenticated, redirect based on their stored role
   useEffect(() => {
     if (!authLoading && isAuthenticated && user) {
       const userRole = getRoleFromUser(user);
@@ -99,12 +98,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       formData.set("email", email);
       formData.set("code", otp);
       await signIn("email-otp", formData);
-      
-      // Store the selected role for the user
       if (selectedRole) {
         await setMyRole({ role: selectedRole });
       }
-      
       navigate(redirectAfterAuth || resolveRedirect(selectedRole));
     } catch {
       setError("The verification code is incorrect.");
@@ -122,10 +118,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setError(null);
     try {
       await signIn("anonymous");
-      
-      // Store the selected role for the guest user
       await setMyRole({ role: selectedRole });
-      
       navigate(redirectAfterAuth || resolveRedirect(selectedRole));
     } catch (err) {
       setError(
@@ -135,10 +128,10 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     }
   };
 
-  const roleColors: Record<Role, string> = {
-    doctor: "bg-neo-yellow",
-    patient: "bg-neo-green",
-    admin: "bg-neo-blue",
+  const roleStyles: Record<Role, { bg: string; icon: string; border: string }> = {
+    doctor: { bg: "bg-[#EFF6FF]", icon: "text-[#2563EB]", border: "border-[#BFDBFE] hover:border-[#2563EB]" },
+    patient: { bg: "bg-[#D1FAE5]", icon: "text-[#059669]", border: "border-[#A7F3D0] hover:border-[#059669]" },
+    admin: { bg: "bg-[#EDE9FE]", icon: "text-[#7C3AED]", border: "border-[#C4B5FD] hover:border-[#7C3AED]" },
   };
 
   const roleIcons: Record<Role, typeof Leaf> = {
@@ -154,46 +147,51 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div
           className="flex items-center gap-3 mb-8 cursor-pointer"
           onClick={() => navigate("/")}
         >
-          <div className="w-12 h-12 bg-neo-yellow border-2 border-foreground flex items-center justify-center">
-            <Leaf className="w-6 h-6" />
+          <div className="w-11 h-11 bg-[#2563EB] rounded-xl flex items-center justify-center">
+            <Leaf className="w-6 h-6 text-white" />
           </div>
           <div>
-            <p className="font-black text-xl tracking-tight">CareSync Pro</p>
-            <p className="text-xs text-muted-foreground">Connected Patient Care</p>
+            <p className="font-bold text-xl tracking-tight text-[#0F172A]">CareSync Pro</p>
+            <p className="text-xs text-[#64748B]">Connected Patient Care</p>
           </div>
         </div>
 
         {/* Role Selection */}
         {step === "role" && (
           <div>
-            <h1 className="text-2xl font-black mb-2">Select your role</h1>
-            <p className="text-sm text-muted-foreground mb-6">
+            <h1 className="text-2xl font-bold mb-1 text-[#0F172A]">Select your role</h1>
+            <p className="text-sm text-[#64748B] mb-6">
               Choose how you want to sign in to CareSync Pro
             </p>
             <div className="space-y-3">
               {(["doctor", "patient", "admin"] as Role[]).map((role) => {
                 const Icon = roleIcons[role];
+                const styles = roleStyles[role];
                 return (
                   <button
                     key={role}
                     onClick={() => handleRoleSelect(role)}
-                    className={`w-full p-5 border-2 border-foreground text-left hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#0A0A0A] transition-all ${roleColors[role]}`}
+                    className={`w-full p-5 rounded-xl border ${styles.border} ${styles.bg} text-left hover:shadow-md transition-all`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-6 h-6" />
-                      <div>
-                        <span className="font-bold text-lg capitalize block">{role}</span>
-                        <span className="text-xs text-muted-foreground">{roleDescriptions[role]}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${styles.bg}`}>
+                          <Icon className={`w-5 h-5 ${styles.icon}`} />
+                        </div>
+                        <div>
+                          <span className="font-semibold text-base capitalize block text-[#0F172A]">{role}</span>
+                          <span className="text-xs text-[#64748B]">{roleDescriptions[role]}</span>
+                        </div>
                       </div>
+                      <ArrowRight className="w-5 h-5 text-[#94A3B8]" />
                     </div>
-                    <ArrowRight className="float-right mt-[-24px]" />
                   </button>
                 );
               })}
@@ -206,24 +204,31 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <div>
             <button
               onClick={() => setStep("role")}
-              className="flex items-center gap-1 text-sm text-muted-foreground mb-4 hover:text-foreground"
+              className="flex items-center gap-1 text-sm text-[#64748B] mb-4 hover:text-[#0F172A] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" /> Back to role selection
             </button>
-            <div className={`p-4 border-2 border-foreground mb-6 ${roleColors[selectedRole || "doctor"]}`}>
-              <span className="font-bold capitalize">{selectedRole}</span> Login
+            <div className={`p-4 rounded-xl border ${roleStyles[selectedRole || "doctor"].border} ${roleStyles[selectedRole || "doctor"].bg} mb-6`}>
+              <div className="flex items-center gap-2">
+                {selectedRole && (() => {
+                  const Icon = roleIcons[selectedRole];
+                  return <Icon className={`w-5 h-5 ${roleStyles[selectedRole].icon}`} />;
+                })()}
+                <span className="font-semibold capitalize text-[#0F172A]">{selectedRole}</span>
+                <span className="text-[#64748B] font-medium">Login</span>
+              </div>
             </div>
-            <h1 className="text-2xl font-black mb-2">Enter your email</h1>
-            <p className="text-sm text-muted-foreground mb-6">
+            <h1 className="text-2xl font-bold mb-1 text-[#0F172A]">Enter your email</h1>
+            <p className="text-sm text-[#64748B] mb-6">
               We'll send a verification code to your email
             </p>
             <form onSubmit={handleEmailSubmit}>
               <div className="relative mb-4">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-[#94A3B8]" />
                 <Input
                   placeholder="name@example.com"
                   type="email"
-                  className="neo-input pl-11 py-6 text-base"
+                  className="health-input pl-11 py-6 text-base rounded-xl"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -231,13 +236,13 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                 />
               </div>
               {error && (
-                <p className="text-sm text-destructive font-medium mb-4">
+                <p className="text-sm text-[#DC2626] font-medium mb-4">
                   {error}
                 </p>
               )}
               <Button
                 type="submit"
-                className="neo-btn w-full bg-foreground text-background font-bold py-6 text-base"
+                className="health-btn w-full bg-[#2563EB] text-white font-semibold py-6 text-base rounded-xl hover:bg-[#1D4ED8]"
                 disabled={isLoading || !email}
               >
                 {isLoading ? (
@@ -252,7 +257,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               <Button
                 type="button"
                 variant="outline"
-                className="neo-btn w-full mt-3 font-bold"
+                className="health-btn w-full mt-3 font-semibold rounded-xl border-[#E2E8F0] text-[#64748B] hover:text-[#0F172A] hover:border-[#2563EB]"
                 onClick={handleGuestLogin}
                 disabled={isLoading}
               >
@@ -267,12 +272,12 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <div>
             <button
               onClick={() => setStep("email")}
-              className="flex items-center gap-1 text-sm text-muted-foreground mb-4 hover:text-foreground"
+              className="flex items-center gap-1 text-sm text-[#64748B] mb-4 hover:text-[#0F172A] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" /> Use different email
             </button>
-            <h1 className="text-2xl font-black mb-2">Check your email</h1>
-            <p className="text-sm text-muted-foreground mb-6">
+            <h1 className="text-2xl font-bold mb-1 text-[#0F172A]">Check your email</h1>
+            <p className="text-sm text-[#64748B] mb-6">
               We've sent a code to {email}
             </p>
             <form onSubmit={handleOtpSubmit}>
@@ -295,19 +300,19 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                 >
                   <InputOTPGroup>
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <InputOTPSlot key={i} index={i} className="w-12 h-14 text-lg font-bold border-2 border-foreground" />
+                      <InputOTPSlot key={i} index={i} className="w-12 h-14 text-lg font-bold rounded-lg border-[#E2E8F0] focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/10" />
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
               </div>
               {error && (
-                <p className="text-sm text-destructive font-medium text-center mb-4">
+                <p className="text-sm text-[#DC2626] font-medium text-center mb-4">
                   {error}
                 </p>
               )}
               <Button
                 type="submit"
-                className="neo-btn w-full bg-foreground text-background font-bold py-6 text-base"
+                className="health-btn w-full bg-[#2563EB] text-white font-semibold py-6 text-base rounded-xl hover:bg-[#1D4ED8]"
                 disabled={isLoading || otp.length !== 6}
               >
                 {isLoading ? (
@@ -323,7 +328,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           </div>
         )}
 
-        <p className="text-xs text-center text-muted-foreground mt-8">
+        <p className="text-xs text-center text-[#94A3B8] mt-8">
           AI assists healthcare professionals; it does not replace medical judgment.
         </p>
       </div>

@@ -58,7 +58,6 @@ export default function Dashboard() {
   const [seeding, setSeeding] = useState(false);
   const seededRef = useRef(false);
 
-  // Auto-seed demo data when doctor first loads and has no patients
   useEffect(() => {
     if (
       !seededRef.current &&
@@ -102,35 +101,36 @@ export default function Dashboard() {
   const unreadNotifs = notifications?.filter((n) => !n.read).length || 0;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-[#F8FAFC] flex">
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/30 z-40 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
+      {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-secondary border-r-2 border-foreground z-50 flex flex-col transition-transform ${
+        className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-white border-r border-[#E2E8F0] z-50 flex flex-col transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="p-4 border-b-2 border-foreground flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-neo-yellow border-2 border-foreground flex items-center justify-center">
-              <Leaf className="w-4 h-4" />
+        <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center">
+              <Leaf className="w-4 h-4 text-white" />
             </div>
-            <span className="font-black text-sm">CareSync Pro</span>
+            <span className="font-bold text-sm text-[#0F172A]">CareSync Pro</span>
           </div>
           <button
-            className="lg:hidden p-1"
+            className="lg:hidden p-1 rounded-lg hover:bg-[#F1F5F9] transition-colors"
             onClick={() => setSidebarOpen(false)}
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-[#64748B]" />
           </button>
         </div>
 
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
           {sidebarItems.map((item) => (
             <button
               key={item.key}
@@ -138,16 +138,16 @@ export default function Dashboard() {
                 setView(item.key);
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all ${
                 view === item.key
-                  ? "bg-neo-yellow border-2 border-foreground shadow-[2px_2px_0px_#0A0A0A]"
-                  : "hover:bg-background border-2 border-transparent"
+                  ? "bg-[#EFF6FF] text-[#2563EB]"
+                  : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
               }`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
               <span>{item.label}</span>
               {item.key === "notifications" && unreadNotifs > 0 && (
-                <span className="ml-auto bg-destructive text-destructive-foreground text-xs font-bold px-1.5 py-0.5 min-w-[20px] text-center">
+                <span className="ml-auto bg-[#DC2626] text-white text-xs font-semibold px-2 py-0.5 rounded-full min-w-[20px] text-center">
                   {unreadNotifs}
                 </span>
               )}
@@ -155,18 +155,18 @@ export default function Dashboard() {
           ))}
         </nav>
 
-        <div className="p-3 border-t-2 border-foreground">
+        <div className="p-3 border-t border-[#E2E8F0]">
           <div className="px-3 py-2 mb-2">
-            <p className="text-sm font-bold truncate">
+            <p className="text-sm font-semibold truncate text-[#0F172A]">
               {user?.name || "Doctor"}
             </p>
-            <p className="text-xs text-muted-foreground truncate">
+            <p className="text-xs text-[#64748B] truncate">
               {user?.email}
             </p>
           </div>
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-destructive hover:bg-background border-2 border-transparent hover:border-foreground"
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-[#DC2626] hover:bg-[#FEF2F2] rounded-lg transition-colors"
           >
             <LogOut className="w-5 h-5" />
             {t("nav.logout")}
@@ -174,19 +174,20 @@ export default function Dashboard() {
         </div>
       </aside>
 
+      {/* Main Content */}
       <div className="flex-1 min-h-screen">
-        <header className="sticky top-0 z-30 bg-background border-b-2 border-foreground px-4 py-3 flex items-center gap-4">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-[#E2E8F0] px-4 sm:px-6 py-3 flex items-center gap-4">
           <button
-            className="lg:hidden p-2 border-2 border-foreground hover:bg-secondary"
+            className="lg:hidden p-2 rounded-lg hover:bg-[#F1F5F9] transition-colors"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5 text-[#0F172A]" />
           </button>
-          <h1 className="font-black text-lg">
+          <h1 className="font-bold text-lg text-[#0F172A]">
             {sidebarItems.find((i) => i.key === view)?.label || "Dashboard"}
           </h1>
           {seeding && (
-            <div className="flex items-center gap-2 text-xs font-bold text-neo-orange ml-4">
+            <div className="flex items-center gap-2 text-xs font-medium text-[#D97706] ml-4">
               <Loader2 className="w-3 h-3 animate-spin" />
               Loading demo data...
             </div>
@@ -195,7 +196,7 @@ export default function Dashboard() {
             {unreadNotifs > 0 && (
               <button
                 onClick={() => markAllRead()}
-                className="text-xs font-medium text-muted-foreground hover:text-foreground"
+                className="text-xs font-medium text-[#64748B] hover:text-[#2563EB] transition-colors"
               >
                 Mark all read
               </button>
@@ -236,8 +237,8 @@ function DashboardView({
   if (stats === undefined) {
     return (
       <div className="flex items-center gap-3 py-20">
-        <Loader2 className="w-6 h-6 animate-spin" />
-        <span>{t("common.loading")}</span>
+        <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+        <span className="text-[#64748B]">{t("common.loading")}</span>
       </div>
     );
   }
@@ -250,49 +251,54 @@ function DashboardView({
   const recentPatients = (stats as { recentPatients?: Array<Record<string, unknown>> })?.recentPatients || [];
 
   const statCards = [
-    { label: t("dashboard.totalPatients"), value: totalPatients, color: "bg-neo-yellow" },
-    { label: t("dashboard.todayAppointments"), value: todayAppointments, color: "bg-neo-green" },
-    { label: t("dashboard.pendingFollowups"), value: pendingFollowups, color: "bg-neo-orange" },
-    { label: t("dashboard.scheduledAppointments"), value: scheduledAppointments, color: "bg-neo-blue" },
+    { label: t("dashboard.totalPatients"), value: totalPatients, color: "bg-[#DBEAFE] text-[#2563EB]", icon: Users },
+    { label: t("dashboard.todayAppointments"), value: todayAppointments, color: "bg-[#D1FAE5] text-[#059669]", icon: Calendar },
+    { label: t("dashboard.pendingFollowups"), value: pendingFollowups, color: "bg-[#FEF3C7] text-[#D97706]", icon: Clock },
+    { label: t("dashboard.scheduledAppointments"), value: scheduledAppointments, color: "bg-[#EDE9FE] text-[#7C3AED]", icon: ClipboardList },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-0">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card) => (
-          <div key={card.label} className="border-2 border-foreground p-5">
-            <p className={`text-3xl font-black ${card.color} inline-block px-2 py-0.5 border-2 border-foreground`}>
-              {card.value}
-            </p>
-            <p className="text-sm font-bold mt-2">{card.label}</p>
+          <div key={card.label} className="health-stat-card">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${card.color}`}>
+                <card.icon className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-[#0F172A]">{card.value}</p>
+                <p className="text-xs font-medium text-[#64748B]">{card.label}</p>
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="neo-card p-0">
-          <div className="p-4 border-b-2 border-foreground flex items-center justify-between">
-            <h2 className="font-black">{t("dashboard.upcomingAppointments")}</h2>
+        <div className="health-card-static">
+          <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
+            <h2 className="font-semibold text-[#0F172A]">{t("dashboard.upcomingAppointments")}</h2>
             <button
               onClick={() => setView("appointments")}
-              className="text-xs font-bold flex items-center hover:underline"
+              className="text-xs font-medium text-[#2563EB] flex items-center hover:underline"
             >
               View all <ChevronRight className="w-3 h-3" />
             </button>
           </div>
-          <div className="divide-y divide-foreground/20">
+          <div className="divide-y divide-[#F1F5F9]">
             {upcomingAppointments.length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">{t("common.noData")}</p>
+              <p className="p-4 text-sm text-[#64748B]">{t("common.noData")}</p>
             ) : (
               upcomingAppointments.map((apt) => (
                 <div key={String(apt._id)} className="p-4 flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-sm">{String(apt.patientName || "Patient")}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-sm text-[#0F172A]">{String(apt.patientName || "Patient")}</p>
+                    <p className="text-xs text-[#64748B]">
                       {String(apt.date)} at {String(apt.time)}
                     </p>
                   </div>
-                  <span className="neo-badge px-2 py-1 text-xs bg-neo-yellow">
+                  <span className="health-badge bg-[#EFF6FF] text-[#2563EB]">
                     {String(apt.reason || "Consultation")}
                   </span>
                 </div>
@@ -301,24 +307,24 @@ function DashboardView({
           </div>
         </div>
 
-        <div className="neo-card p-0">
-          <div className="p-4 border-b-2 border-foreground flex items-center justify-between">
-            <h2 className="font-black">{t("dashboard.recentPatients")}</h2>
+        <div className="health-card-static">
+          <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between">
+            <h2 className="font-semibold text-[#0F172A]">{t("dashboard.recentPatients")}</h2>
             <button
               onClick={() => setView("patients")}
-              className="text-xs font-bold flex items-center hover:underline"
+              className="text-xs font-medium text-[#2563EB] flex items-center hover:underline"
             >
               View all <ChevronRight className="w-3 h-3" />
             </button>
           </div>
-          <div className="divide-y divide-foreground/20">
+          <div className="divide-y divide-[#F1F5F9]">
             {recentPatients.length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">{t("common.noData")}</p>
+              <p className="p-4 text-sm text-[#64748B]">{t("common.noData")}</p>
             ) : (
               recentPatients.map((p) => (
                 <div key={String(p.id)} className="p-4">
-                  <p className="font-bold text-sm">{String(p.name)}</p>
-                  <p className="text-xs text-muted-foreground">{String(p.email || "")}</p>
+                  <p className="font-medium text-sm text-[#0F172A]">{String(p.name)}</p>
+                  <p className="text-xs text-[#64748B]">{String(p.email || "")}</p>
                 </div>
               ))
             )}
@@ -347,8 +353,8 @@ function PatientsView() {
   if (patients === undefined) {
     return (
       <div className="flex items-center gap-3 py-20">
-        <Loader2 className="w-6 h-6 animate-spin" />
-        <span>{t("common.loading")}</span>
+        <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+        <span className="text-[#64748B]">{t("common.loading")}</span>
       </div>
     );
   }
@@ -380,17 +386,17 @@ function PatientsView() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-[#94A3B8]" />
           <Input
             placeholder="Search patients..."
-            className="neo-input pl-10"
+            className="health-input pl-10 py-2 rounded-xl"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Button
           onClick={() => setShowAdd(!showAdd)}
-          className="neo-btn bg-foreground text-background font-bold"
+          className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl"
         >
           <Plus className="w-4 h-4 mr-2" />
           {t("common.addNew")}
@@ -398,25 +404,25 @@ function PatientsView() {
       </div>
 
       {showAdd && (
-        <div className="neo-card p-6">
-          <h3 className="font-black text-lg mb-4">Add Patient</h3>
+        <div className="health-card-static p-6">
+          <h3 className="font-semibold text-lg mb-4 text-[#0F172A]">Add Patient</h3>
           <form onSubmit={handleAddPatient} className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-bold block mb-1">Name *</label>
-                <Input className="neo-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+                <label className="text-sm font-medium text-[#334155] block mb-1">Name *</label>
+                <Input className="health-input rounded-xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
               </div>
               <div>
-                <label className="text-sm font-bold block mb-1">Email</label>
-                <Input className="neo-input" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                <label className="text-sm font-medium text-[#334155] block mb-1">Email</label>
+                <Input className="health-input rounded-xl" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </div>
               <div>
-                <label className="text-sm font-bold block mb-1">Phone</label>
-                <Input className="neo-input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                <label className="text-sm font-medium text-[#334155] block mb-1">Phone</label>
+                <Input className="health-input rounded-xl" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
               </div>
               <div>
-                <label className="text-sm font-bold block mb-1">Gender</label>
-                <select className="neo-input w-full py-2 px-3" value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
+                <label className="text-sm font-medium text-[#334155] block mb-1">Gender</label>
+                <select className="health-input w-full py-2 px-3 rounded-xl" value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
                   <option value="">Select</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -424,36 +430,36 @@ function PatientsView() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-bold block mb-1">Date of Birth</label>
-                <Input className="neo-input" type="date" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} />
+                <label className="text-sm font-medium text-[#334155] block mb-1">Date of Birth</label>
+                <Input className="health-input rounded-xl" type="date" value={form.dateOfBirth} onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })} />
               </div>
               <div>
-                <label className="text-sm font-bold block mb-1">Blood Group</label>
-                <Input className="neo-input" value={form.bloodGroup} onChange={(e) => setForm({ ...form, bloodGroup: e.target.value })} />
+                <label className="text-sm font-medium text-[#334155] block mb-1">Blood Group</label>
+                <Input className="health-input rounded-xl" value={form.bloodGroup} onChange={(e) => setForm({ ...form, bloodGroup: e.target.value })} />
               </div>
             </div>
             <div>
-              <label className="text-sm font-bold block mb-1">Allergies</label>
-              <Input className="neo-input" value={form.allergies} onChange={(e) => setForm({ ...form, allergies: e.target.value })} />
+              <label className="text-sm font-medium text-[#334155] block mb-1">Allergies</label>
+              <Input className="health-input rounded-xl" value={form.allergies} onChange={(e) => setForm({ ...form, allergies: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-bold block mb-1">Existing Conditions</label>
-              <Input className="neo-input" value={form.existingConditions} onChange={(e) => setForm({ ...form, existingConditions: e.target.value })} />
+              <label className="text-sm font-medium text-[#334155] block mb-1">Existing Conditions</label>
+              <Input className="health-input rounded-xl" value={form.existingConditions} onChange={(e) => setForm({ ...form, existingConditions: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-bold block mb-1">Current Medications</label>
-              <Input className="neo-input" value={form.currentMedications} onChange={(e) => setForm({ ...form, currentMedications: e.target.value })} />
+              <label className="text-sm font-medium text-[#334155] block mb-1">Current Medications</label>
+              <Input className="health-input rounded-xl" value={form.currentMedications} onChange={(e) => setForm({ ...form, currentMedications: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-bold block mb-1">Notes</label>
-              <textarea className="neo-input w-full p-3" rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+              <label className="text-sm font-medium text-[#334155] block mb-1">Notes</label>
+              <textarea className="health-input w-full p-3 rounded-xl" rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
             </div>
             <div className="flex gap-3">
-              <Button type="submit" className="neo-btn bg-foreground text-background font-bold" disabled={loading}>
+              <Button type="submit" className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl" disabled={loading}>
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 {t("common.save")}
               </Button>
-              <Button type="button" variant="outline" className="neo-btn font-bold" onClick={() => setShowAdd(false)}>
+              <Button type="button" variant="outline" className="health-btn font-semibold rounded-xl" onClick={() => setShowAdd(false)}>
                 {t("common.cancel")}
               </Button>
             </div>
@@ -462,50 +468,50 @@ function PatientsView() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="neo-card p-12 text-center">
-          <Users className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">{t("common.noData")}</p>
+        <div className="health-card-static p-12 text-center">
+          <Users className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">{t("common.noData")}</p>
         </div>
       ) : (
         filtered.map((patient) => (
-          <div key={patient._id} className="neo-card mb-3">
+          <div key={patient._id} className="health-card-static mb-3">
             <div
-              className="p-4 flex items-center justify-between cursor-pointer hover:bg-secondary/50"
+              className="p-4 flex items-center justify-between cursor-pointer hover:bg-[#F8FAFC] rounded-xl transition-colors"
               onClick={() => setExpandedId(expandedId === patient._id ? null : patient._id)}
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-neo-yellow border-2 border-foreground flex items-center justify-center font-bold text-sm">
+                <div className="w-10 h-10 bg-[#DBEAFE] rounded-lg flex items-center justify-center font-semibold text-sm text-[#2563EB]">
                   {(patient.userName || "P").charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-bold text-sm">{patient.userName || "Patient"}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="font-semibold text-sm text-[#0F172A]">{patient.userName || "Patient"}</p>
+                  <p className="text-xs text-[#64748B]">
                     {patient.userEmail} • {patient.phone || "No phone"}
                   </p>
                 </div>
               </div>
-              <ChevronRight className={`w-5 h-5 transition-transform ${expandedId === patient._id ? "rotate-90" : ""}`} />
+              <ChevronRight className={`w-5 h-5 text-[#94A3B8] transition-transform ${expandedId === patient._id ? "rotate-90" : ""}`} />
             </div>
             {expandedId === patient._id && (
-              <div className="p-4 border-t-2 border-foreground bg-secondary/30 space-y-3">
+              <div className="p-4 border-t border-[#F1F5F9] bg-[#F8FAFC] space-y-3 rounded-b-xl">
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  {patient.gender && <div><span className="font-bold">Gender:</span> {patient.gender}</div>}
-                  {patient.dateOfBirth && <div><span className="font-bold">DOB:</span> {patient.dateOfBirth}</div>}
-                  {patient.bloodGroup && <div><span className="font-bold">Blood:</span> {patient.bloodGroup}</div>}
-                  {patient.emergencyContact && <div><span className="font-bold">Emergency:</span> {patient.emergencyContact}</div>}
+                  {patient.gender && <div><span className="font-medium text-[#334155]">Gender:</span> <span className="text-[#0F172A]">{patient.gender}</span></div>}
+                  {patient.dateOfBirth && <div><span className="font-medium text-[#334155]">DOB:</span> <span className="text-[#0F172A]">{patient.dateOfBirth}</span></div>}
+                  {patient.bloodGroup && <div><span className="font-medium text-[#334155]">Blood:</span> <span className="text-[#0F172A]">{patient.bloodGroup}</span></div>}
+                  {patient.emergencyContact && <div><span className="font-medium text-[#334155]">Emergency:</span> <span className="text-[#0F172A]">{patient.emergencyContact}</span></div>}
                 </div>
-                {patient.allergies && <div className="text-sm"><span className="font-bold">Allergies:</span> {patient.allergies}</div>}
-                {patient.existingConditions && <div className="text-sm"><span className="font-bold">Conditions:</span> {patient.existingConditions}</div>}
-                {patient.currentMedications && <div className="text-sm"><span className="font-bold">Medications:</span> {patient.currentMedications}</div>}
-                {patient.notes && <div className="text-sm"><span className="font-bold">Notes:</span> {patient.notes}</div>}
-                <div className="neo-border-sm p-3 bg-neo-yellow/20">
-                  <p className="text-xs font-bold mb-1">AI Patient Summary</p>
-                  <p className="text-xs text-muted-foreground">
+                {patient.allergies && <div className="text-sm"><span className="font-medium text-[#334155]">Allergies:</span> <span className="text-[#0F172A]">{patient.allergies}</span></div>}
+                {patient.existingConditions && <div className="text-sm"><span className="font-medium text-[#334155]">Conditions:</span> <span className="text-[#0F172A]">{patient.existingConditions}</span></div>}
+                {patient.currentMedications && <div className="text-sm"><span className="font-medium text-[#334155]">Medications:</span> <span className="text-[#0F172A]">{patient.currentMedications}</span></div>}
+                {patient.notes && <div className="text-sm"><span className="font-medium text-[#334155]">Notes:</span> <span className="text-[#0F172A]">{patient.notes}</span></div>}
+                <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4">
+                  <p className="text-xs font-semibold text-[#1E40AF] mb-1">AI Patient Summary</p>
+                  <p className="text-xs text-[#334155]">
                     {patient.existingConditions
                       ? `Patient with ${patient.existingConditions}. ${patient.currentMedications ? `Currently on ${patient.currentMedications}. ` : ""}${patient.notes || ""}`
                       : "No medical conditions recorded."}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-2 italic">
+                  <p className="text-[10px] text-[#64748B] mt-2 italic">
                     AI-generated summary — verify patient records.
                   </p>
                 </div>
@@ -559,11 +565,11 @@ function AppointmentsView() {
     });
   };
 
-  const statusColors: Record<string, string> = {
-    scheduled: "bg-neo-yellow",
-    completed: "bg-neo-green",
-    cancelled: "bg-neo-red",
-    missed: "bg-muted",
+  const statusStyles: Record<string, string> = {
+    scheduled: "bg-[#EFF6FF] text-[#2563EB]",
+    completed: "bg-[#D1FAE5] text-[#059669]",
+    cancelled: "bg-[#FEE2E2] text-[#DC2626]",
+    missed: "bg-[#F1F5F9] text-[#64748B]",
   };
 
   return (
@@ -574,31 +580,33 @@ function AppointmentsView() {
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-bold border-2 border-foreground transition-all ${
-                statusFilter === s ? "bg-neo-yellow shadow-[2px_2px_0px_#0A0A0A]" : "bg-background hover:bg-secondary"
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                statusFilter === s
+                  ? "bg-[#2563EB] text-white"
+                  : "bg-white text-[#64748B] border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB]"
               }`}
             >
               {s ? t(`status.${s}`) : "All"}
             </button>
           ))}
         </div>
-        <Button onClick={() => setShowAdd(!showAdd)} className="neo-btn bg-foreground text-background font-bold sm:ml-auto">
+        <Button onClick={() => setShowAdd(!showAdd)} className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl sm:ml-auto">
           <Plus className="w-4 h-4 mr-2" />
           New Appointment
         </Button>
       </div>
 
       {showAdd && (
-        <div className="neo-card p-6">
-          <h3 className="font-black text-lg mb-4">Schedule Appointment</h3>
+        <div className="health-card-static p-6">
+          <h3 className="font-semibold text-lg mb-4 text-[#0F172A]">Schedule Appointment</h3>
           {!doctorProfile?._id ? (
-            <p className="text-sm text-muted-foreground">Loading your profile...</p>
+            <p className="text-sm text-[#64748B]">Loading your profile...</p>
           ) : (
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-bold block mb-1">Patient *</label>
-                  <select className="neo-input w-full py-2 px-3" value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} required>
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Patient *</label>
+                  <select className="health-input w-full py-2 px-3 rounded-xl" value={form.patientId} onChange={(e) => setForm({ ...form, patientId: e.target.value })} required>
                     <option value="">Select patient</option>
                     {patients?.map((p) => (
                       <option key={p._id} value={p._id}>{p.userName || "Unknown"}</option>
@@ -606,57 +614,57 @@ function AppointmentsView() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-bold block mb-1">Date *</label>
-                  <Input type="date" className="neo-input" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Date *</label>
+                  <Input type="date" className="health-input rounded-xl" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
                 </div>
                 <div>
-                  <label className="text-sm font-bold block mb-1">Time *</label>
-                  <Input type="time" className="neo-input" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required />
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Time *</label>
+                  <Input type="time" className="health-input rounded-xl" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required />
                 </div>
                 <div>
-                  <label className="text-sm font-bold block mb-1">Reason</label>
-                  <Input className="neo-input" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Reason</label>
+                  <Input className="health-input rounded-xl" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
                 </div>
               </div>
               <div className="flex gap-3">
-                <Button type="submit" className="neo-btn bg-foreground text-background font-bold">{t("common.save")}</Button>
-                <Button type="button" variant="outline" className="neo-btn font-bold" onClick={() => setShowAdd(false)}>{t("common.cancel")}</Button>
+                <Button type="submit" className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl">{t("common.save")}</Button>
+                <Button type="button" variant="outline" className="health-btn font-semibold rounded-xl" onClick={() => setShowAdd(false)}>{t("common.cancel")}</Button>
               </div>
             </form>
           )}
         </div>
       )}
 
-      <div className="space-y-0">
+      <div className="space-y-3">
         {filtered.length === 0 ? (
-          <div className="neo-card p-12 text-center">
-            <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-            <p className="font-bold">{t("common.noData")}</p>
+          <div className="health-card-static p-12 text-center">
+            <Calendar className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+            <p className="font-semibold text-[#0F172A]">{t("common.noData")}</p>
           </div>
         ) : (
           filtered.map((apt) => (
-            <div key={apt._id} className="neo-card p-4 mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div key={apt._id} className="health-card-static p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-neo-blue border-2 border-foreground flex items-center justify-center">
-                  <Calendar className="w-5 h-5" />
+                <div className="w-10 h-10 bg-[#DBEAFE] rounded-lg flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-[#2563EB]" />
                 </div>
                 <div>
-                  <p className="font-bold text-sm">{apt.patientName || "Patient"}</p>
-                  <p className="text-xs text-muted-foreground">{apt.date} at {apt.time} — {apt.reason || "Consultation"}</p>
+                  <p className="font-medium text-sm text-[#0F172A]">{apt.patientName || "Patient"}</p>
+                  <p className="text-xs text-[#64748B]">{apt.date} at {apt.time} — {apt.reason || "Consultation"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`neo-badge px-2 py-1 text-xs ${statusColors[apt.status] || ""}`}>{t(`status.${apt.status}`)}</span>
+                <span className={`health-badge ${statusStyles[apt.status] || ""}`}>{t(`status.${apt.status}`)}</span>
                 {apt.status === "scheduled" && (
                   <div className="flex gap-1">
-                    <button onClick={() => handleStatusChange(apt._id, "completed")} className="p-1.5 border-2 border-foreground hover:bg-neo-green" title="Complete">
-                      <Check className="w-3.5 h-3.5" />
+                    <button onClick={() => handleStatusChange(apt._id, "completed")} className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#D1FAE5] transition-colors" title="Complete">
+                      <Check className="w-3.5 h-3.5 text-[#059669]" />
                     </button>
-                    <button onClick={() => handleStatusChange(apt._id, "cancelled")} className="p-1.5 border-2 border-foreground hover:bg-neo-red" title="Cancel">
-                      <XIcon className="w-3.5 h-3.5" />
+                    <button onClick={() => handleStatusChange(apt._id, "cancelled")} className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#FEE2E2] transition-colors" title="Cancel">
+                      <XIcon className="w-3.5 h-3.5 text-[#DC2626]" />
                     </button>
-                    <button onClick={() => handleStatusChange(apt._id, "missed")} className="p-1.5 border-2 border-foreground hover:bg-muted" title="Missed">
-                      <AlertTriangle className="w-3.5 h-3.5" />
+                    <button onClick={() => handleStatusChange(apt._id, "missed")} className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-[#F1F5F9] transition-colors" title="Missed">
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#64748B]" />
                     </button>
                   </div>
                 )}
@@ -678,49 +686,49 @@ function PrescriptionsView() {
   if (prescriptions === undefined) {
     return (
       <div className="flex items-center gap-3 py-20">
-        <Loader2 className="w-6 h-6 animate-spin" />
-        <span>{t("common.loading")}</span>
+        <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+        <span className="text-[#64748B]">{t("common.loading")}</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-3">
       {prescriptions.length === 0 ? (
-        <div className="neo-card p-12 text-center">
-          <Pill className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">{t("common.noData")}</p>
+        <div className="health-card-static p-12 text-center">
+          <Pill className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">{t("common.noData")}</p>
         </div>
       ) : (
         prescriptions.map((rx) => (
-          <div key={rx._id} className="neo-card mb-3">
+          <div key={rx._id} className="health-card-static">
             <div
-              className="p-4 flex items-center justify-between cursor-pointer hover:bg-secondary/50"
+              className="p-4 flex items-center justify-between cursor-pointer hover:bg-[#F8FAFC] rounded-xl transition-colors"
               onClick={() => setExpandedId(expandedId === rx._id ? null : rx._id)}
             >
               <div>
-                <p className="font-bold text-sm">{rx.patientName || "Patient"}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="font-medium text-sm text-[#0F172A]">{rx.patientName || "Patient"}</p>
+                <p className="text-xs text-[#64748B]">
                   {rx.items?.length || 0} medicines • {new Date(rx.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <span className={`neo-badge px-2 py-1 text-xs ${rx.status === "active" ? "bg-neo-green" : "bg-muted"}`}>{rx.status}</span>
+              <span className={`health-badge ${rx.status === "active" ? "bg-[#D1FAE5] text-[#059669]" : "bg-[#F1F5F9] text-[#64748B]"}`}>{rx.status}</span>
             </div>
             {expandedId === rx._id && (
-              <div className="p-4 border-t-2 border-foreground bg-secondary/30 space-y-3">
+              <div className="p-4 border-t border-[#F1F5F9] bg-[#F8FAFC] space-y-3 rounded-b-xl">
                 {rx.items?.map((item) => (
-                  <div key={item._id} className="bg-background border-2 border-foreground p-3">
-                    <p className="font-bold text-sm">
+                  <div key={item._id} className="bg-white border border-[#E2E8F0] rounded-xl p-3">
+                    <p className="font-medium text-sm text-[#0F172A]">
                       {item.medicineName}
-                      {item.isAyurvedic && <span className="ml-2 text-xs bg-neo-green px-2 py-0.5 neo-badge">Ayurvedic</span>}
+                      {item.isAyurvedic && <span className="ml-2 text-xs bg-[#D1FAE5] text-[#059669] px-2 py-0.5 rounded-md font-medium">Ayurvedic</span>}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-[#64748B] mt-1">
                       {item.dosage} • {item.frequency} • {item.duration}
                     </p>
-                    {item.instructions && <p className="text-xs mt-1">📋 {item.instructions}</p>}
+                    {item.instructions && <p className="text-xs mt-1 text-[#334155]">📋 {item.instructions}</p>}
                   </div>
                 ))}
-                {rx.notes && <p className="text-xs text-muted-foreground"><span className="font-bold">Notes:</span> {rx.notes}</p>}
+                {rx.notes && <p className="text-xs text-[#64748B]"><span className="font-medium text-[#334155]">Notes:</span> {rx.notes}</p>}
               </div>
             )}
           </div>
@@ -733,10 +741,10 @@ function PrescriptionsView() {
 /* ─── Records View ─── */
 function RecordsView() {
   return (
-    <div className="neo-card p-12 text-center">
-      <ClipboardList className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-      <p className="font-bold mb-2">Medical Records</p>
-      <p className="text-sm text-muted-foreground">Select a patient from the Patients tab to view their medical records.</p>
+    <div className="health-card-static p-12 text-center">
+      <ClipboardList className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+      <p className="font-semibold text-[#0F172A] mb-1">Medical Records</p>
+      <p className="text-sm text-[#64748B]">Select a patient from the Patients tab to view their medical records.</p>
     </div>
   );
 }
@@ -744,10 +752,10 @@ function RecordsView() {
 /* ─── Reports View ─── */
 function ReportsView() {
   return (
-    <div className="neo-card p-12 text-center">
-      <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-      <p className="font-bold mb-2">Reports</p>
-      <p className="text-sm text-muted-foreground">Select a patient to view their medical reports.</p>
+    <div className="health-card-static p-12 text-center">
+      <FileText className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+      <p className="font-semibold text-[#0F172A] mb-1">Reports</p>
+      <p className="text-sm text-[#64748B]">Select a patient to view their medical reports.</p>
     </div>
   );
 }
@@ -760,32 +768,32 @@ function FollowupsView() {
   if (followups === undefined) {
     return (
       <div className="flex items-center gap-3 py-20">
-        <Loader2 className="w-6 h-6 animate-spin" />
-        <span>{t("common.loading")}</span>
+        <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+        <span className="text-[#64748B]">{t("common.loading")}</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-3">
       {followups.length === 0 ? (
-        <div className="neo-card p-12 text-center">
-          <Clock className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">{t("common.noData")}</p>
+        <div className="health-card-static p-12 text-center">
+          <Clock className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">{t("common.noData")}</p>
         </div>
       ) : (
         followups.map((fu) => (
-          <div key={fu._id} className="neo-card p-4 mb-3 flex items-center justify-between">
+          <div key={fu._id} className="health-card-static p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-neo-orange border-2 border-foreground flex items-center justify-center">
-                <Clock className="w-5 h-5" />
+              <div className="w-10 h-10 bg-[#FEF3C7] rounded-lg flex items-center justify-center">
+                <Clock className="w-5 h-5 text-[#D97706]" />
               </div>
               <div>
-                <p className="font-bold text-sm">{fu.patientName || "Patient"}</p>
-                <p className="text-xs text-muted-foreground">{fu.date} — {fu.notes || "Follow-up"}</p>
+                <p className="font-medium text-sm text-[#0F172A]">{fu.patientName || "Patient"}</p>
+                <p className="text-xs text-[#64748B]">{fu.date} — {fu.notes || "Follow-up"}</p>
               </div>
             </div>
-            <span className={`neo-badge px-2 py-1 text-xs ${fu.status === "pending" ? "bg-neo-orange" : "bg-neo-green"}`}>{fu.status}</span>
+            <span className={`health-badge ${fu.status === "pending" ? "bg-[#FEF3C7] text-[#D97706]" : "bg-[#D1FAE5] text-[#059669]"}`}>{fu.status}</span>
           </div>
         ))
       )}
@@ -801,7 +809,6 @@ function DocumentsView() {
   const [showUpload, setShowUpload] = useState(false);
   const [capturedDocs, setCapturedDocs] = useState<Array<Record<string, unknown>>>([]);
 
-  // Load captured docs from localStorage on mount and when showUpload changes
   useState(() => {
     const docs = JSON.parse(localStorage.getItem("captured-docs") || "[]");
     setCapturedDocs(docs);
@@ -820,9 +827,9 @@ function DocumentsView() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <div className="flex-1">
-          <label className="text-sm font-bold block mb-1">Select Patient</label>
+          <label className="text-sm font-medium text-[#334155] block mb-1">Select Patient</label>
           <select
-            className="neo-input w-full py-2 px-3"
+            className="health-input w-full py-2 px-3 rounded-xl"
             value={selectedPatientId}
             onChange={(e) => {
               setSelectedPatientId(e.target.value);
@@ -840,7 +847,7 @@ function DocumentsView() {
         {selectedPatientId && (
           <Button
             onClick={() => setShowUpload(!showUpload)}
-            className="neo-btn bg-foreground text-background font-bold"
+            className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl"
           >
             <Plus className="w-4 h-4 mr-2" />
             Capture Document
@@ -848,10 +855,9 @@ function DocumentsView() {
         )}
       </div>
 
-      {/* Camera Upload Section */}
       {showUpload && selectedPatientId && (
-        <div className="neo-card p-6">
-          <h3 className="font-black text-lg mb-4">Upload / Capture Document</h3>
+        <div className="health-card-static p-6">
+          <h3 className="font-semibold text-lg mb-4 text-[#0F172A]">Upload / Capture Document</h3>
           <DocumentUploadWithCamera
             patientId={selectedPatientId}
             onUploaded={() => {
@@ -862,18 +868,17 @@ function DocumentsView() {
         </div>
       )}
 
-      {/* Document List */}
       {selectedPatientId ? (
         selectedPatientDocs.length === 0 ? (
-          <div className="neo-card p-12 text-center">
-            <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-            <p className="font-bold mb-2">No documents yet</p>
-            <p className="text-sm text-muted-foreground mb-4">
+          <div className="health-card-static p-12 text-center">
+            <FileText className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+            <p className="font-semibold text-[#0F172A] mb-1">No documents yet</p>
+            <p className="text-sm text-[#64748B] mb-4">
               Capture or upload handwritten prescriptions and reports for this patient.
             </p>
             <Button
               onClick={() => setShowUpload(true)}
-              className="neo-btn bg-foreground text-background font-bold"
+              className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl"
             >
               <Camera className="w-4 h-4 mr-2" />
               Capture First Document
@@ -881,37 +886,36 @@ function DocumentsView() {
           </div>
         ) : (
           <div className="space-y-3">
-            <h3 className="font-bold text-sm">
+            <h3 className="font-medium text-sm text-[#64748B]">
               {selectedPatientDocs.length} document(s)
             </h3>
             {selectedPatientDocs.map((doc) => (
-              <div key={String(doc._id)} className="neo-card p-4">
+              <div key={String(doc._id)} className="health-card-static p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 bg-neo-yellow border-2 border-foreground flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 bg-[#FEF3C7] rounded-lg flex items-center justify-center shrink-0">
                     {String(doc.fileType).includes("pdf") ? "📄" : "🖼️"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm">{String(doc.fileName)}</p>
+                    <p className="font-medium text-sm text-[#0F172A]">{String(doc.fileName)}</p>
                     {!!doc.description ? (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-[#64748B]">
                         {String(doc.description)}
                       </p>
                     ) : null}
-                    <p className="text-[10px] text-muted-foreground mt-1">
+                    <p className="text-[10px] text-[#94A3B8] mt-1">
                       {new Date(Number(doc.createdAt)).toLocaleString()}
                     </p>
                     {!doc.ocrVerified ? (
-                      <div className="mt-2 neo-border-sm p-2 bg-neo-orange/20">
-                        <p className="text-[10px] font-bold text-neo-orange">Pending OCR Review</p>
-                        <p className="text-[10px] text-muted-foreground italic">
+                      <div className="mt-2 bg-[#FEF3C7] border border-[#FDE68A] rounded-lg p-3">
+                        <p className="text-[10px] font-semibold text-[#D97706]">Pending OCR Review</p>
+                        <p className="text-[10px] text-[#64748B] italic">
                           AI/OCR extracted — Doctor verification required.
                         </p>
                       </div>
                     ) : null}
                   </div>
-                  {/* Show thumbnail for images */}
                   {!!doc.fileUrl && String(doc.fileUrl).startsWith("data:image") ? (
-                    <div className="w-20 h-20 border-2 border-foreground overflow-hidden shrink-0">
+                    <div className="w-20 h-20 border border-[#E2E8F0] rounded-lg overflow-hidden shrink-0">
                       <img
                         src={String(doc.fileUrl)}
                         alt={String(doc.fileName)}
@@ -925,19 +929,19 @@ function DocumentsView() {
           </div>
         )
       ) : (
-        <div className="neo-card p-12 text-center">
-          <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold mb-2">Documents</p>
-          <p className="text-sm text-muted-foreground">
+        <div className="health-card-static p-12 text-center">
+          <FileText className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A] mb-1">Documents</p>
+          <p className="text-sm text-[#64748B]">
             Select a patient above to view and upload documents and handwritten prescriptions.
           </p>
-          <div className="neo-border-sm p-4 mt-6 max-w-md mx-auto text-left">
-            <p className="text-xs font-bold mb-1">📸 Camera Capture Feature</p>
-            <p className="text-xs text-muted-foreground">
-              Use your device camera to capture handwritten prescriptions and medical reports. 
+          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4 mt-6 max-w-md mx-auto text-left">
+            <p className="text-xs font-semibold text-[#0F172A] mb-1">📸 Camera Capture Feature</p>
+            <p className="text-xs text-[#64748B]">
+              Use your device camera to capture handwritten prescriptions and medical reports.
               The image is stored for doctor review and OCR processing.
             </p>
-            <p className="text-[10px] text-muted-foreground mt-2 italic">
+            <p className="text-[10px] text-[#94A3B8] mt-2 italic">
               AI/OCR extracted information — Doctor verification required.
             </p>
           </div>
@@ -952,25 +956,25 @@ function NotificationsView({ notifications }: { notifications: Record<string, un
   const markAsRead = useMutation(api.notifications.markAsRead);
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-3">
       {notifications.length === 0 ? (
-        <div className="neo-card p-12 text-center">
-          <Bell className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">No notifications</p>
+        <div className="health-card-static p-12 text-center">
+          <Bell className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">No notifications</p>
         </div>
       ) : (
         notifications.map((n) => (
           <div
             key={String(n._id)}
-            className={`neo-card p-4 mb-3 cursor-pointer ${!n.read ? "bg-neo-yellow/20" : ""}`}
+            className={`health-card-static p-4 cursor-pointer transition-colors ${!n.read ? "bg-[#EFF6FF] border-[#BFDBFE]" : ""}`}
             onClick={() => !n.read && markAsRead({ notificationId: n._id as Id<"notifications"> })}
           >
             <div className="flex items-start gap-3">
-              <div className={`w-2 h-2 mt-2 shrink-0 ${!n.read ? "bg-neo-red" : "bg-muted"}`} />
+              <div className={`w-2 h-2 mt-2 shrink-0 rounded-full ${!n.read ? "bg-[#2563EB]" : "bg-[#CBD5E1]"}`} />
               <div>
-                <p className="font-bold text-sm">{String(n.title)}</p>
-                <p className="text-xs text-muted-foreground">{String(n.message)}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">{new Date(Number(n.createdAt)).toLocaleString()}</p>
+                <p className="font-medium text-sm text-[#0F172A]">{String(n.title)}</p>
+                <p className="text-xs text-[#64748B]">{String(n.message)}</p>
+                <p className="text-[10px] text-[#94A3B8] mt-1">{new Date(Number(n.createdAt)).toLocaleString()}</p>
               </div>
             </div>
           </div>

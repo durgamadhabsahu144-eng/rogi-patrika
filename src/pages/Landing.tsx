@@ -16,6 +16,8 @@ import {
   Shield,
   ArrowRight,
   Leaf,
+  CheckCircle2,
+  Lock,
 } from "lucide-react";
 
 const languages = [
@@ -27,6 +29,7 @@ const languages = [
 const features = [
   {
     icon: FileText,
+    color: "bg-health-blue-light text-health-blue",
     title: { en: "Patient Case-Taking", hi: "रोगी केस-टेकिंग", or: "ରୋଗୀ କେସ୍-ଟେକିଂ" },
     desc: {
       en: "Structured Ayurvedic case-taking with Prakriti & Vikriti assessment",
@@ -36,6 +39,7 @@ const features = [
   },
   {
     icon: Calendar,
+    color: "bg-health-green-light text-health-green",
     title: { en: "Smart Scheduling", hi: "स्मार्ट शेड्यूलिंग", or: "ସ୍ମାର୍ଟ ସେଡ୍ୟୁଲିଂ" },
     desc: {
       en: "Manage appointments, follow-ups, and treatment plans",
@@ -45,6 +49,7 @@ const features = [
   },
   {
     icon: Pill,
+    color: "bg-health-amber-light text-health-amber",
     title: { en: "Herb & Medicine Tracking", hi: "जड़ी-बूटी और दवा ट्रैकिंग", or: "ଔଷଧ ଏବଂ ଔଷଧ ଟ୍ରାକିଂ" },
     desc: {
       en: "Digital prescriptions with herb & medicine suggestions",
@@ -54,6 +59,7 @@ const features = [
   },
   {
     icon: Brain,
+    color: "bg-health-purple-light text-health-purple",
     title: { en: "AI-Assisted Summary", hi: "AI-सहायित सारांश", or: "AI-ସହାୟିତ ସାରାଂଶ" },
     desc: {
       en: "AI-powered patient history summaries for better diagnosis",
@@ -63,6 +69,7 @@ const features = [
   },
   {
     icon: Mic,
+    color: "bg-health-teal-light text-health-teal",
     title: { en: "Voice Accessibility", hi: "वॉइस एक्सेसिबिलिटी", or: "ଭଏସ୍ ଏକ୍ସେସିବିଲିଟି" },
     desc: {
       en: "Voice-first interface for patients with limited literacy",
@@ -72,6 +79,7 @@ const features = [
   },
   {
     icon: Globe,
+    color: "bg-health-blue-light text-health-blue",
     title: { en: "Multilingual Support", hi: "बहुभाषी समर्थन", or: "ବହୁଭାଷୀ ସମର୍ଥନ" },
     desc: {
       en: "English, Hindi, and Odia language support",
@@ -81,6 +89,7 @@ const features = [
   },
   {
     icon: Wifi,
+    color: "bg-health-green-light text-health-green",
     title: { en: "Low-Connectivity Ready", hi: "कम कनेक्टिविटी रेडी", or: "କମ୍ ସଂଯୋଗ ପ୍ରସ୍ତୁତ" },
     desc: {
       en: "Works offline with sync when connected",
@@ -90,6 +99,7 @@ const features = [
   },
   {
     icon: ClipboardList,
+    color: "bg-health-amber-light text-health-amber",
     title: { en: "Follow-up Reminders", hi: "फॉलो-अप रिमाइंडर", or: "ଫଲୋ-ଅପ୍ ରିମାଇଣ୍ଡର" },
     desc: {
       en: "Never miss a follow-up with smart reminders",
@@ -110,27 +120,29 @@ export default function Landing() {
   const { language, setLanguage, t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#F8FAFC]">
       {/* Header */}
-      <header className="border-b-2 border-foreground sticky top-0 bg-background z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-white/80 backdrop-blur-md border-b border-[#E2E8F0] sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-neo-yellow border-2 border-foreground flex items-center justify-center">
-                <Leaf className="w-5 h-5" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-[#2563EB] rounded-lg flex items-center justify-center">
+                <Leaf className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-lg tracking-tight">CareSync Pro</span>
+              <span className="font-bold text-lg tracking-tight text-[#0F172A]">
+                CareSync Pro
+              </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-[#F1F5F9] rounded-lg p-1">
               {languages.map((lang) => (
                 <button
                   key={lang.code}
                   onClick={() => setLanguage(lang.code)}
-                  className={`px-3 py-1.5 text-xs font-semibold border-2 border-foreground transition-all ${
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                     language === lang.code
-                      ? "bg-neo-yellow shadow-[2px_2px_0px_#0A0A0A]"
-                      : "bg-background hover:bg-secondary"
+                      ? "bg-white text-[#2563EB] shadow-sm"
+                      : "text-[#64748B] hover:text-[#334155]"
                   }`}
                 >
                   {lang.label}
@@ -142,27 +154,28 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section className="border-b-2 border-foreground py-16 sm:py-24 lg:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-24 lg:py-32">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <div className="inline-block px-4 py-2 bg-neo-yellow border-2 border-foreground font-bold text-sm mb-6 neo-badge">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EFF6FF] text-[#1E40AF] rounded-full font-semibold text-xs mb-6">
+                <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
                 SIH 2026 — Problem Statement 47
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-none mb-4">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-[#0F172A] mb-4">
                 {t("landing.heroTitle")}
               </h1>
-              <p className="text-xl sm:text-2xl font-bold text-muted-foreground mb-6">
+              <p className="text-xl sm:text-2xl font-semibold text-[#2563EB] mb-4">
                 {t("landing.heroSubtitle")}
               </p>
-              <p className="text-base leading-relaxed text-muted-foreground mb-8 max-w-lg">
+              <p className="text-base leading-relaxed text-[#64748B] mb-8 max-w-lg">
                 {t("landing.heroDescription")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   size="lg"
-                  className="neo-btn bg-background text-foreground font-bold text-base px-8 py-6 hover:bg-neo-yellow"
+                  className="health-btn bg-[#2563EB] text-white font-semibold text-base px-8 py-6 rounded-xl hover:bg-[#1D4ED8]"
                   onClick={() => navigate("/auth?role=doctor")}
                 >
                   <Stethoscope className="w-5 h-5 mr-2" />
@@ -171,7 +184,7 @@ export default function Landing() {
                 </Button>
                 <Button
                   size="lg"
-                  className="neo-btn bg-background text-foreground font-bold text-base px-8 py-6 hover:bg-neo-green"
+                  className="health-btn bg-white text-[#0F172A] font-semibold text-base px-8 py-6 rounded-xl border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB]"
                   onClick={() => navigate("/auth?role=patient")}
                 >
                   <Heart className="w-5 h-5 mr-2" />
@@ -180,7 +193,7 @@ export default function Landing() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="neo-btn bg-background text-foreground font-bold text-base px-8 py-6"
+                  className="health-btn bg-white text-[#64748B] font-semibold text-base px-8 py-6 rounded-xl border border-[#E2E8F0] hover:border-[#2563EB] hover:text-[#2563EB]"
                   onClick={() => navigate("/auth?role=admin")}
                 >
                   <Shield className="w-5 h-5 mr-2" />
@@ -191,38 +204,46 @@ export default function Landing() {
 
             {/* Hero Visual */}
             <div className="hidden lg:block">
-              <div className="neo-card bg-neo-yellow p-8 relative">
+              <div className="health-card-static p-8 bg-white relative">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-background border-2 border-foreground p-6">
-                    <Stethoscope className="w-10 h-10 mb-3" />
-                    <p className="font-bold text-sm">Doctor Portal</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                  <div className="bg-[#F8FAFC] rounded-xl p-6 border border-[#E2E8F0]">
+                    <div className="w-10 h-10 bg-[#DBEAFE] rounded-lg flex items-center justify-center mb-3">
+                      <Stethoscope className="w-5 h-5 text-[#2563EB]" />
+                    </div>
+                    <p className="font-semibold text-sm text-[#0F172A]">Doctor Portal</p>
+                    <p className="text-xs text-[#64748B] mt-1">
                       Case-taking & Treatment
                     </p>
                   </div>
-                  <div className="bg-background border-2 border-foreground p-6">
-                    <Heart className="w-10 h-10 mb-3" />
-                    <p className="font-bold text-sm">Patient Portal</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                  <div className="bg-[#F8FAFC] rounded-xl p-6 border border-[#E2E8F0]">
+                    <div className="w-10 h-10 bg-[#D1FAE5] rounded-lg flex items-center justify-center mb-3">
+                      <Heart className="w-5 h-5 text-[#059669]" />
+                    </div>
+                    <p className="font-semibold text-sm text-[#0F172A]">Patient Portal</p>
+                    <p className="text-xs text-[#64748B] mt-1">
                       Health Records & Voice
                     </p>
                   </div>
-                  <div className="bg-background border-2 border-foreground p-6">
-                    <Brain className="w-10 h-10 mb-3" />
-                    <p className="font-bold text-sm">AI Assistant</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                  <div className="bg-[#F8FAFC] rounded-xl p-6 border border-[#E2E8F0]">
+                    <div className="w-10 h-10 bg-[#EDE9FE] rounded-lg flex items-center justify-center mb-3">
+                      <Brain className="w-5 h-5 text-[#7C3AED]" />
+                    </div>
+                    <p className="font-semibold text-sm text-[#0F172A]">AI Assistant</p>
+                    <p className="text-xs text-[#64748B] mt-1">
                       Smart Summaries
                     </p>
                   </div>
-                  <div className="bg-background border-2 border-foreground p-6">
-                    <Globe className="w-10 h-10 mb-3" />
-                    <p className="font-bold text-sm">3 Languages</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                  <div className="bg-[#F8FAFC] rounded-xl p-6 border border-[#E2E8F0]">
+                    <div className="w-10 h-10 bg-[#CCFBF1] rounded-lg flex items-center justify-center mb-3">
+                      <Globe className="w-5 h-5 text-[#0D9488]" />
+                    </div>
+                    <p className="font-semibold text-sm text-[#0F172A]">3 Languages</p>
+                    <p className="text-xs text-[#64748B] mt-1">
                       EN / HI / OR
                     </p>
                   </div>
                 </div>
-                <div className="absolute -bottom-3 -right-3 bg-neo-green border-2 border-foreground px-4 py-2 font-bold text-sm">
+                <div className="absolute -bottom-3 -right-3 bg-[#D1FAE5] text-[#059669] px-4 py-2 rounded-lg font-semibold text-sm border border-[#A7F3D0]">
                   Ayurveda-Aligned
                 </div>
               </div>
@@ -232,13 +253,13 @@ export default function Landing() {
       </section>
 
       {/* Impact Stats */}
-      <section className="border-b-2 border-foreground bg-neo-yellow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-3 gap-0 divide-x-2 divide-foreground">
+      <section className="bg-white border-y border-[#E2E8F0]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="grid grid-cols-3 gap-8">
             {impacts.map((item) => (
-              <div key={item.num} className="text-center px-6">
-                <p className="text-3xl sm:text-4xl font-black">{item.num}</p>
-                <p className="text-sm font-bold mt-1">
+              <div key={item.num} className="text-center">
+                <p className="text-3xl sm:text-4xl font-bold text-[#2563EB]">{item.num}</p>
+                <p className="text-sm font-medium text-[#64748B] mt-1">
                   {item.label[language]}
                 </p>
               </div>
@@ -248,25 +269,30 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section className="border-b-2 border-foreground py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#0F172A]">
               {t("landing.featuresTitle")}
             </h2>
+            <p className="text-[#64748B] mt-3 max-w-2xl mx-auto">
+              Everything healthcare professionals need to manage patient care efficiently
+            </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-0">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((feature, i) => (
               <div
                 key={i}
-                className="border-2 border-foreground p-6 hover:bg-neo-yellow transition-colors"
+                className="health-card p-5 hover:shadow-md transition-all"
               >
-                <feature.icon className="w-8 h-8 mb-4" />
-                <h3 className="font-bold text-sm mb-2">
+                <div className={`w-10 h-10 ${feature.color} rounded-lg flex items-center justify-center mb-3`}>
+                  <feature.icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-semibold text-sm text-[#0F172A] mb-1.5">
                   {feature.title[language]}
                 </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-xs text-[#64748B] leading-relaxed">
                   {feature.desc[language]}
                 </p>
               </div>
@@ -276,16 +302,17 @@ export default function Landing() {
       </section>
 
       {/* Impact & Benefits */}
-      <section className="border-b-2 border-foreground py-16 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black tracking-tight mb-10 text-center">
+      <section className="py-16 bg-white border-y border-[#E2E8F0]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold tracking-tight mb-10 text-center text-[#0F172A]">
             {t("landing.impactTitle")}
           </h2>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               {
                 icon: FileText,
+                color: "bg-[#DBEAFE] text-[#2563EB]",
                 title: { en: "Standardized Case-Taking", hi: "मानकीकृत केस-टेकिंग", or: "ମାନକୀକୃତ କେସ୍-ଟେକିଂ" },
                 desc: {
                   en: "Consistent Ayurvedic assessment across all practitioners",
@@ -295,6 +322,7 @@ export default function Landing() {
               },
               {
                 icon: Users,
+                color: "bg-[#D1FAE5] text-[#059669]",
                 title: { en: "Centralized Patient Data", hi: "केंद्रीकृत रोगी डेटा", or: "କେନ୍ଦ୍ରୀକୃତ ରୋଗୀ ତଥ୍ୟ" },
                 desc: {
                   en: "All patient information in one secure platform",
@@ -304,6 +332,7 @@ export default function Landing() {
               },
               {
                 icon: Brain,
+                color: "bg-[#EDE9FE] text-[#7C3AED]",
                 title: { en: "Better Diagnostic Outcomes", hi: "बेहतर निदान परिणाम", or: "ଉତ୍ତମ ରୋଗ ନିର୍ଣ୍ଣୟ ଫଳାଫଳ" },
                 desc: {
                   en: "AI-assisted summaries help doctors make informed decisions",
@@ -313,6 +342,7 @@ export default function Landing() {
               },
               {
                 icon: Globe,
+                color: "bg-[#CCFBF1] text-[#0D9488]",
                 title: { en: "Multi-Language Access", hi: "बहुभाषी पहुंच", or: "ବହୁଭାଷୀ ପ୍ରବେଶ" },
                 desc: {
                   en: "Patients can interact in their preferred language",
@@ -322,6 +352,7 @@ export default function Landing() {
               },
               {
                 icon: Mic,
+                color: "bg-[#FEF3C7] text-[#D97706]",
                 title: { en: "Voice-First Design", hi: "वॉइस-फर्स्ट डिज़ाइन", or: "ଭଏସ୍-ଫାର୍ଷ୍ଟ ଡିଜାଇନ୍" },
                 desc: {
                   en: "Designed for patients with limited digital literacy",
@@ -331,6 +362,7 @@ export default function Landing() {
               },
               {
                 icon: Shield,
+                color: "bg-[#DBEAFE] text-[#2563EB]",
                 title: { en: "Data-Driven Decisions", hi: "डेटा-संचालित निर्णय", or: "ତଥ୍ୟ-ଚାଳିତ ନିର୍ଣ୍ଣୟ" },
                 desc: {
                   en: "Research-friendly with exportable reports",
@@ -339,10 +371,12 @@ export default function Landing() {
                 },
               },
             ].map((item, i) => (
-              <div key={i} className="neo-card bg-background p-6">
-                <item.icon className="w-8 h-8 mb-4" />
-                <h3 className="font-bold mb-2">{item.title[language]}</h3>
-                <p className="text-sm text-muted-foreground">
+              <div key={i} className="health-card p-5">
+                <div className={`w-10 h-10 ${item.color} rounded-lg flex items-center justify-center mb-3`}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-semibold mb-1.5 text-[#0F172A]">{item.title[language]}</h3>
+                <p className="text-sm text-[#64748B] leading-relaxed">
                   {item.desc[language]}
                 </p>
               </div>
@@ -352,62 +386,71 @@ export default function Landing() {
       </section>
 
       {/* Security */}
-      <section className="border-b-2 border-foreground py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black tracking-tight mb-10 text-center">
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold tracking-tight mb-10 text-center text-[#0F172A]">
             {t("landing.securityTitle")}
           </h2>
-          <div className="grid sm:grid-cols-3 gap-0">
+          <div className="grid sm:grid-cols-3 gap-4">
             {[
-              { icon: Shield, title: { en: "Role-Based Access", hi: "रोल-बेस्ड एक्सेस", or: "ରୋଲ୍-ବେସ୍ଡ ପ୍ରବେଶ" } },
-              { icon: Users, title: { en: "Protected Records", hi: "सुरक्षित रिकॉर्ड", or: "ସୁରକ୍ଷିତ ରେକର୍ଡ" } },
-              { icon: Lock, title: { en: "Secure APIs", hi: "सुरक्षित APIs", or: "ସୁରକ୍ଷିତ APIs" } },
+              { icon: Shield, title: { en: "Role-Based Access", hi: "रोल-बेस्ड एक्सेस", or: "ରୋଲ୍-ବେସ୍ଡ ପ୍ରବେଶ" }, desc: "Only authorized users can access patient data" },
+              { icon: Lock, title: { en: "Protected Records", hi: "सुरक्षित रिकॉर्ड", or: "ସୁରକ୍ଷିତ ରେକର୍ଡ" }, desc: "Encrypted storage and secure API communication" },
+              { icon: CheckCircle2, title: { en: "Secure APIs", hi: "सुरक्षित APIs", or: "ସୁରକ୍ଷିତ APIs" }, desc: "Every request is authenticated and validated" },
             ].map((item, i) => (
               <div
                 key={i}
-                className="border-2 border-foreground p-6 text-center"
+                className="health-card p-5 text-center"
               >
-                <item.icon className="w-8 h-8 mx-auto mb-3" />
-                <p className="font-bold text-sm">{item.title[language]}</p>
+                <div className="w-10 h-10 bg-[#EFF6FF] rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <item.icon className="w-5 h-5 text-[#2563EB]" />
+                </div>
+                <p className="font-semibold text-sm text-[#0F172A]">{item.title[language]}</p>
+                <p className="text-xs text-[#64748B] mt-1">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* CTA */}
+      <section className="py-16 bg-white border-y border-[#E2E8F0]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-[#0F172A] mb-4">
+            Ready to get started?
+          </h2>
+          <p className="text-[#64748B] mb-8 max-w-lg mx-auto">
+            Join healthcare professionals who are transforming patient care with CareSync Pro.
+          </p>
+          <Button
+            size="lg"
+            className="health-btn bg-[#2563EB] text-white font-semibold text-base px-10 py-6 rounded-xl hover:bg-[#1D4ED8]"
+            onClick={() => navigate("/auth?role=doctor")}
+          >
+            Get Started
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-foreground text-background py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="font-bold text-sm mb-2">CareSync Pro — SIH 2026</p>
-          <p className="text-xs opacity-70 mb-4">
+      <footer className="bg-[#0F172A] text-white py-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center gap-2.5 mb-3">
+            <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center">
+              <Leaf className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-lg">CareSync Pro</span>
+          </div>
+          <p className="text-sm text-[#94A3B8] mb-4">
             Connected Patient Care for Ayurvedic Practitioners
           </p>
-          <div className="inline-block px-4 py-2 border border-background/30 text-xs">
-            AI assists healthcare professionals; it does not replace medical
-            judgment.
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-[#94A3B8]">
+            <Brain className="w-3.5 h-3.5" />
+            AI assists healthcare professionals; it does not replace medical judgment.
           </div>
+          <p className="text-xs text-[#475569] mt-6">© 2026 CareSync Pro · SIH 2026</p>
         </div>
       </footer>
     </div>
-  );
-}
-
-function Lock(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
   );
 }

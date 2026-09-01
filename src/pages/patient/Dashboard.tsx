@@ -53,7 +53,6 @@ export default function PatientDashboard() {
   const seedDemo = useMutation(api.seed.seedDemoData);
   const seededRef = useRef(false);
 
-  // Auto-seed demo data when patient first loads and has no appointments
   useEffect(() => {
     if (
       !seededRef.current &&
@@ -71,34 +70,41 @@ export default function PatientDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b-2 border-foreground bg-background sticky top-0 z-40">
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-[#E2E8F0] sticky top-0 z-40">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-neo-green border-2 border-foreground flex items-center justify-center">
-              <Leaf className="w-4 h-4" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-[#059669] rounded-lg flex items-center justify-center">
+              <Leaf className="w-4 h-4 text-white" />
             </div>
-            <span className="font-black text-sm">CareSync Pro</span>
+            <span className="font-bold text-sm text-[#0F172A]">CareSync Pro</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-[#F1F5F9] rounded-lg p-1">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => setLanguage(lang.code)}
-                className={`px-2 py-1 text-xs font-bold border-2 border-foreground ${
-                  language === lang.code ? "bg-neo-yellow" : ""
+                className={`px-2 py-1 text-xs font-semibold rounded-md transition-all ${
+                  language === lang.code
+                    ? "bg-white text-[#059669] shadow-sm"
+                    : "text-[#64748B] hover:text-[#334155]"
                 }`}
               >
                 {lang.label}
               </button>
             ))}
-            <button onClick={handleSignOut} className="p-2 border-2 border-foreground hover:bg-muted">
-              <LogOut className="w-4 h-4" />
+            <button
+              onClick={handleSignOut}
+              className="p-1.5 rounded-lg hover:bg-white transition-colors"
+            >
+              <LogOut className="w-4 h-4 text-[#64748B]" />
             </button>
           </div>
         </div>
       </header>
 
+      {/* Main Content */}
       <main className="max-w-2xl mx-auto px-4 py-6">
         {view === "home" && (
           <HomeView
@@ -148,46 +154,53 @@ function HomeView({
   unreadCount: number;
 }) {
   const menuItems = [
-    { icon: Calendar, label: t("patient.nextAppointment"), view: "appointments" as View, color: "bg-neo-blue" },
-    { icon: Pill, label: t("patient.myPrescriptions"), view: "prescriptions" as View, color: "bg-neo-green" },
-    { icon: FileText, label: t("patient.myReports"), view: "reports" as View, color: "bg-neo-yellow" },
-    { icon: Clock, label: t("patient.myFollowups"), view: "followups" as View, color: "bg-neo-orange" },
-    { icon: Camera, label: language === "hi" ? "मेरे दस्तावेज़" : language === "or" ? "ମୋର ଦସ୍ତାବିଜ୍" : "My Documents", view: "documents" as View, color: "bg-neo-green/80" },
-    { icon: Bell, label: t("patient.notifications"), view: "notifications" as View, color: "bg-muted", count: unreadCount },
+    { icon: Calendar, label: t("patient.nextAppointment"), view: "appointments" as View, color: "bg-[#DBEAFE] text-[#2563EB]" },
+    { icon: Pill, label: t("patient.myPrescriptions"), view: "prescriptions" as View, color: "bg-[#D1FAE5] text-[#059669]" },
+    { icon: FileText, label: t("patient.myReports"), view: "reports" as View, color: "bg-[#FEF3C7] text-[#D97706]" },
+    { icon: Clock, label: t("patient.myFollowups"), view: "followups" as View, color: "bg-[#EDE9FE] text-[#7C3AED]" },
+    { icon: Camera, label: language === "hi" ? "मेरे दस्तावेज़" : language === "or" ? "ମୋର ଦସ୍ତାବିଜ୍" : "My Documents", view: "documents" as View, color: "bg-[#CCFBF1] text-[#0D9488]" },
+    { icon: Bell, label: t("patient.notifications"), view: "notifications" as View, color: "bg-[#F1F5F9] text-[#64748B]", count: unreadCount },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="neo-card bg-neo-green p-6">
-        <h1 className="text-2xl font-black">{t("patient.greeting")}, {userName} 👋</h1>
-        <p className="text-sm mt-1 opacity-80">{t("patient.myHealth")}</p>
+      {/* Greeting Card */}
+      <div className="bg-gradient-to-br from-[#059669] to-[#0D9488] rounded-2xl p-6 text-white">
+        <h1 className="text-2xl font-bold">
+          {t("patient.greeting")}, {userName} 👋
+        </h1>
+        <p className="text-sm mt-1 text-white/80">{t("patient.myHealth")}</p>
       </div>
 
+      {/* Menu Items */}
       <div className="space-y-3">
         {menuItems.map((item) => (
           <button
             key={item.view}
             onClick={() => setView(item.view)}
-            className="w-full neo-card p-5 flex items-center gap-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#0A0A0A] transition-all text-left"
+            className="w-full health-card p-5 flex items-center gap-4 hover:shadow-md transition-all text-left"
           >
-            <div className={`w-12 h-12 ${item.color} border-2 border-foreground flex items-center justify-center shrink-0`}>
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
               <item.icon className="w-6 h-6" />
             </div>
-            <span className="font-bold text-base flex-1">{item.label}</span>
+            <span className="font-semibold text-base flex-1 text-[#0F172A]">{item.label}</span>
             {item.count && item.count > 0 ? (
-              <span className="bg-neo-red text-background text-xs font-bold px-2 py-0.5 border-2 border-foreground">{item.count}</span>
+              <span className="bg-[#DC2626] text-white text-xs font-semibold px-2.5 py-0.5 rounded-full">{item.count}</span>
             ) : null}
           </button>
         ))}
       </div>
 
+      {/* Voice Button */}
       <button
         onClick={() => setView("voice")}
-        className="w-full neo-card bg-neo-yellow p-8 flex flex-col items-center gap-3 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#0A0A0A] transition-all"
+        className="w-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] rounded-2xl p-8 flex flex-col items-center gap-3 text-white hover:shadow-lg transition-all"
       >
-        <Mic className="w-12 h-12" />
-        <span className="font-black text-xl">{t("patient.tapAndSpeak")}</span>
-        <span className="text-xs opacity-70">
+        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+          <Mic className="w-8 h-8" />
+        </div>
+        <span className="font-bold text-xl">{t("patient.tapAndSpeak")}</span>
+        <span className="text-sm text-white/70">
           {language === "hi" ? "अपने सवाल बोलें" : language === "or" ? "ଆପଣଙ୍କ ପ୍ରଶ୍ନ କୁହନ୍ତୁ" : "Ask your questions in your language"}
         </span>
       </button>
@@ -213,27 +226,27 @@ function AppointmentsView({
 
   return (
     <div className="space-y-4">
-      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
         <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
-      <h1 className="text-xl font-black">{t("nav.appointments")}</h1>
+      <h1 className="text-xl font-bold text-[#0F172A]">{t("nav.appointments")}</h1>
 
       {upcoming.length === 0 ? (
-        <div className="neo-card p-8 text-center">
-          <Calendar className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">No upcoming appointments</p>
+        <div className="health-card-static p-8 text-center">
+          <Calendar className="w-10 h-10 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">No upcoming appointments</p>
         </div>
       ) : (
         upcoming.map((apt) => (
-          <div key={String(apt._id)} className="neo-card p-4 bg-neo-yellow/20">
+          <div key={String(apt._id)} className="health-card-static p-4 bg-[#EFF6FF] border-[#BFDBFE]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-neo-blue border-2 border-foreground flex items-center justify-center">
-                <Calendar className="w-5 h-5" />
+              <div className="w-10 h-10 bg-[#DBEAFE] rounded-lg flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-[#2563EB]" />
               </div>
               <div>
-                <p className="font-bold text-sm">{String(apt.doctorName || "Doctor")}</p>
-                <p className="text-xs text-muted-foreground">{String(apt.date)} at {String(apt.time)}</p>
-                {apt.reason ? <p className="text-xs mt-1">{String(apt.reason)}</p> : null}
+                <p className="font-semibold text-sm text-[#0F172A]">{String(apt.doctorName || "Doctor")}</p>
+                <p className="text-xs text-[#64748B]">{String(apt.date)} at {String(apt.time)}</p>
+                {apt.reason ? <p className="text-xs text-[#334155] mt-1">{String(apt.reason)}</p> : null}
               </div>
             </div>
           </div>
@@ -242,11 +255,11 @@ function AppointmentsView({
 
       {past.length > 0 && (
         <>
-          <h2 className="font-bold text-sm mt-4">Past Appointments</h2>
+          <h2 className="font-semibold text-sm text-[#64748B] mt-4">Past Appointments</h2>
           {past.map((apt) => (
-            <div key={String(apt._id)} className="neo-card p-4 opacity-70">
-              <p className="font-bold text-sm">{String(apt.doctorName || "Doctor")}</p>
-              <p className="text-xs text-muted-foreground">{String(apt.date)} — {String(apt.status)}</p>
+            <div key={String(apt._id)} className="health-card-static p-4 opacity-70">
+              <p className="font-medium text-sm text-[#0F172A]">{String(apt.doctorName || "Doctor")}</p>
+              <p className="text-xs text-[#64748B]">{String(apt.date)} — {String(apt.status)}</p>
             </div>
           ))}
         </>
@@ -267,39 +280,39 @@ function PrescriptionsView({
 }) {
   return (
     <div className="space-y-4">
-      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
         <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
-      <h1 className="text-xl font-black">{t("nav.prescriptions")}</h1>
+      <h1 className="text-xl font-bold text-[#0F172A]">{t("nav.prescriptions")}</h1>
 
       {prescriptions.length === 0 ? (
-        <div className="neo-card p-8 text-center">
-          <Pill className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">No prescriptions</p>
+        <div className="health-card-static p-8 text-center">
+          <Pill className="w-10 h-10 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">No prescriptions</p>
         </div>
       ) : (
         prescriptions.map((rx) => {
           const items = (rx.items || []) as Array<Record<string, unknown>>;
           return (
-            <div key={String(rx._id)} className="neo-card p-4">
+            <div key={String(rx._id)} className="health-card-static p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="font-bold text-sm">By {String(rx.doctorName || "Doctor")}</p>
-                <span className={`neo-badge px-2 py-1 text-xs ${rx.status === "active" ? "bg-neo-green" : "bg-muted"}`}>
+                <p className="font-semibold text-sm text-[#0F172A]">By {String(rx.doctorName || "Doctor")}</p>
+                <span className={`health-badge ${rx.status === "active" ? "bg-[#D1FAE5] text-[#059669]" : "bg-[#F1F5F9] text-[#64748B]"}`}>
                   {String(rx.status)}
                 </span>
               </div>
               {items.map((item) => (
-                <div key={String(item._id)} className="bg-secondary p-3 mb-2 border-2 border-foreground">
-                  <p className="font-bold text-sm">{String(item.medicineName)}</p>
-                  <p className="text-xs text-muted-foreground">
+                <div key={String(item._id)} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3 mb-2">
+                  <p className="font-semibold text-sm text-[#0F172A]">{String(item.medicineName)}</p>
+                  <p className="text-xs text-[#64748B]">
                     {String(item.dosage)} • {String(item.frequency)} • {String(item.duration)}
                   </p>
                   {item.instructions ? (
-                    <p className="text-xs mt-1">📋 {String(item.instructions)}</p>
+                    <p className="text-xs text-[#334155] mt-1">📋 {String(item.instructions)}</p>
                   ) : null}
                 </div>
               ))}
-              {rx.notes ? <p className="text-xs text-muted-foreground mt-2">{String(rx.notes)}</p> : null}
+              {rx.notes ? <p className="text-xs text-[#64748B] mt-2">{String(rx.notes)}</p> : null}
             </div>
           );
         })
@@ -312,14 +325,14 @@ function PrescriptionsView({
 function ReportsView({ t, setView }: { t: (key: string) => string; setView: (v: View) => void }) {
   return (
     <div className="space-y-4">
-      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
         <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
-      <h1 className="text-xl font-black">{t("nav.reports")}</h1>
-      <div className="neo-card p-8 text-center">
-        <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-        <p className="font-bold">No reports yet</p>
-        <p className="text-xs text-muted-foreground mt-1">Your doctor will upload reports here</p>
+      <h1 className="text-xl font-bold text-[#0F172A]">{t("nav.reports")}</h1>
+      <div className="health-card-static p-8 text-center">
+        <FileText className="w-10 h-10 mx-auto mb-3 text-[#94A3B8]" />
+        <p className="font-semibold text-[#0F172A]">No reports yet</p>
+        <p className="text-xs text-[#64748B] mt-1">Your doctor will upload reports here</p>
       </div>
     </div>
   );
@@ -329,14 +342,14 @@ function ReportsView({ t, setView }: { t: (key: string) => string; setView: (v: 
 function FollowupsView({ t, setView }: { t: (key: string) => string; setView: (v: View) => void }) {
   return (
     <div className="space-y-4">
-      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
         <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
-      <h1 className="text-xl font-black">{t("nav.followups")}</h1>
-      <div className="neo-card p-8 text-center">
-        <Clock className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-        <p className="font-bold">No follow-ups scheduled</p>
-        <p className="text-xs text-muted-foreground mt-1">Your doctor will schedule follow-ups here</p>
+      <h1 className="text-xl font-bold text-[#0F172A]">{t("nav.followups")}</h1>
+      <div className="health-card-static p-8 text-center">
+        <Clock className="w-10 h-10 mx-auto mb-3 text-[#94A3B8]" />
+        <p className="font-semibold text-[#0F172A]">No follow-ups scheduled</p>
+        <p className="text-xs text-[#64748B] mt-1">Your doctor will schedule follow-ups here</p>
       </div>
     </div>
   );
@@ -353,7 +366,6 @@ function DocumentsView({ t, setView, language }: { t: (key: string) => string; s
     setCapturedDocs(docs);
   };
 
-  // Load docs on mount
   useState(() => {
     refreshDocs();
   });
@@ -364,33 +376,33 @@ function DocumentsView({ t, setView, language }: { t: (key: string) => string; s
 
   return (
     <div className="space-y-4">
-      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
         <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
-      <h1 className="text-xl font-black">{language === "hi" ? "मेरे दस्तावेज़" : language === "or" ? "ମୋର ଦସ୍ତାବିଜ୍" : "My Documents"}</h1>
+      <h1 className="text-xl font-bold text-[#0F172A]">{language === "hi" ? "मेरे दस्तावेज़" : language === "or" ? "ମୋର ଦସ୍ତାବିଜ୍" : "My Documents"}</h1>
 
       {/* Upload Section */}
       <div className="space-y-3">
         <button
           onClick={() => setShowUpload(!showUpload)}
-          className="w-full neo-card p-5 flex items-center gap-4 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_#0A0A0A] transition-all text-left"
+          className="w-full health-card p-5 flex items-center gap-4 hover:shadow-md transition-all text-left"
         >
-          <div className="w-12 h-12 bg-neo-green border-2 border-foreground flex items-center justify-center shrink-0">
-            <Camera className="w-6 h-6" />
+          <div className="w-12 h-12 bg-[#CCFBF1] rounded-xl flex items-center justify-center shrink-0">
+            <Camera className="w-6 h-6 text-[#0D9488]" />
           </div>
           <div>
-            <span className="font-bold text-base block">
+            <span className="font-semibold text-base block text-[#0F172A]">
               {language === "hi" ? "दस्तावेज़ अपलोड करें" : language === "or" ? "ଦସ୍ତାବିଜ୍ ଅପଲୋଡ୍ କରନ୍ତୁ" : "Upload Prescription or Report"}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-[#64748B]">
               {language === "hi" ? "पुराने नुस्खे या रिपोर्ट की तस्वीर लें" : language === "or" ? "ପୁରୁଣା ପ୍ରେସ୍କ୍ରିପ୍ସନ ବା ରିପୋର୍ଟର ଫୋଟୋ ନିଅନ୍ତୁ" : "Capture old prescriptions or medical reports with your camera"}
             </span>
           </div>
         </button>
 
         {showUpload && patientProfile && (
-          <div className="neo-card p-6">
-            <h3 className="font-black text-lg mb-4">
+          <div className="health-card-static p-6">
+            <h3 className="font-semibold text-lg mb-4 text-[#0F172A]">
               {language === "hi" ? "कैमरा या फ़ाइल अपलोड" : language === "or" ? "କ୍ୟାମେରା ବା ଫାଇଲ୍ ଅପଲୋଡ୍" : "Camera or File Upload"}
             </h3>
             <DocumentUploadWithCamera
@@ -407,28 +419,28 @@ function DocumentsView({ t, setView, language }: { t: (key: string) => string; s
       {/* Uploaded Documents List */}
       {patientDocs.length > 0 ? (
         <div className="space-y-3">
-          <h3 className="font-bold text-sm">
+          <h3 className="font-medium text-sm text-[#64748B]">
             {language === "hi" ? `आपके ${patientDocs.length} दस्तावेज़` : language === "or" ? `ଆପଣଙ୍କ ${patientDocs.length} ଦସ୍ତାବିଜ୍` : `Your ${patientDocs.length} Document(s)`}
           </h3>
           {patientDocs.map((doc) => (
-            <div key={String(doc._id)} className="neo-card p-4">
+            <div key={String(doc._id)} className="health-card-static p-4">
               <div className="flex items-start gap-3">
-                <div className="w-12 h-12 bg-neo-yellow border-2 border-foreground flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 bg-[#FEF3C7] rounded-lg flex items-center justify-center shrink-0">
                   {String(doc.fileType).includes("pdf") ? "📄" : "🖼️"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm">{String(doc.fileName)}</p>
+                  <p className="font-medium text-sm text-[#0F172A]">{String(doc.fileName)}</p>
                   {!!doc.description ? (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-[#64748B]">
                       {String(doc.description)}
                     </p>
                   ) : null}
-                  <p className="text-[10px] text-muted-foreground mt-1">
+                  <p className="text-[10px] text-[#94A3B8] mt-1">
                     {new Date(Number(doc.createdAt)).toLocaleString()}
                   </p>
                 </div>
                 {!!doc.fileUrl && String(doc.fileUrl).startsWith("data:image") ? (
-                  <div className="w-20 h-20 border-2 border-foreground overflow-hidden shrink-0">
+                  <div className="w-20 h-20 border border-[#E2E8F0] rounded-lg overflow-hidden shrink-0">
                     <img
                       src={String(doc.fileUrl)}
                       alt={String(doc.fileName)}
@@ -437,8 +449,8 @@ function DocumentsView({ t, setView, language }: { t: (key: string) => string; s
                   </div>
                 ) : null}
               </div>
-              <div className="neo-border-sm p-2 mt-3 bg-neo-orange/20">
-                <p className="text-[10px] text-muted-foreground italic">
+              <div className="bg-[#FEF3C7] border border-[#FDE68A] rounded-lg p-3 mt-3">
+                <p className="text-[10px] text-[#64748B] italic">
                   {language === "hi" ? "AI/OCR निकाली गई जानकारी — डॉक्टर सत्यापन आवश्यक।" : language === "or" ? "AI/OCR ଟିପ୍ପଣୀ ସୂଚନା — ଡାକ୍ତର ସତ୍ୟାପନ ଆବଶ୍ୟକ।" : "AI/OCR extracted information — Doctor verification required."}
                 </p>
               </div>
@@ -446,12 +458,12 @@ function DocumentsView({ t, setView, language }: { t: (key: string) => string; s
           ))}
         </div>
       ) : (
-        <div className="neo-card p-8 text-center">
-          <Camera className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">
+        <div className="health-card-static p-8 text-center">
+          <Camera className="w-10 h-10 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">
             {language === "hi" ? "कोई दस्तावेज़ नहीं" : language === "or" ? "କୌଣସି ଦସ୍ତାବିଜ୍ ନାହିଁ" : "No documents yet"}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-[#64748B] mt-1">
             {language === "hi" ? "अपने पुराने नुस्खे या रिपोर्ट की तस्वीर लें" : language === "or" ? "ଆପଣଙ୍କ ପୁରୁଣା ପ୍ରେସ୍କ୍ରିପ୍ସନ ବା ରିପୋର୍ଟର ଫୋଟୋ ନିଅନ୍ତୁ" : "Capture or upload your old prescriptions and reports"}
           </p>
         </div>
@@ -539,43 +551,44 @@ function VoiceView({ t, setView }: { t: (key: string) => string; setView: (v: Vi
 
   return (
     <div className="space-y-4">
-      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
         <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
-      <h1 className="text-xl font-black">{t("nav.voiceAssistant")}</h1>
+      <h1 className="text-xl font-bold text-[#0F172A]">{t("nav.voiceAssistant")}</h1>
 
+      {/* Microphone Button */}
       <div className="flex justify-center py-8">
         <button
           onClick={handleStartListening}
           disabled={isListening}
-          className={`w-32 h-32 rounded-full border-4 border-foreground flex items-center justify-center transition-all ${
+          className={`w-32 h-32 rounded-full flex items-center justify-center transition-all ${
             isListening
-              ? "bg-neo-red animate-pulse shadow-[6px_6px_0px_#0A0A0A]"
-              : "bg-neo-yellow hover:shadow-[6px_6px_0px_#0A0A0A] hover:translate-x-[-2px] hover:translate-y-[-2px]"
+              ? "bg-[#DC2626] text-white animate-pulse shadow-lg"
+              : "bg-[#2563EB] text-white hover:bg-[#1D4ED8] hover:shadow-lg"
           }`}
         >
           {isListening ? <MicOff className="w-16 h-16" /> : <Mic className="w-16 h-16" />}
         </button>
       </div>
 
-      {isListening && <div className="text-center"><p className="font-bold text-lg animate-pulse">{t("voice.listening")}</p></div>}
-      {error && <div className="neo-card bg-neo-red/20 p-4 text-center"><p className="text-sm font-medium">{error}</p></div>}
+      {isListening && <div className="text-center"><p className="font-semibold text-lg text-[#2563EB] animate-pulse">{t("voice.listening")}</p></div>}
+      {error && <div className="bg-[#FEE2E2] border border-[#FECACA] rounded-xl p-4 text-center"><p className="text-sm font-medium text-[#DC2626]">{error}</p></div>}
       {transcript && (
-        <div className="neo-card p-4">
-          <p className="text-xs font-bold text-muted-foreground mb-1">You said:</p>
-          <p className="text-sm font-medium">{transcript}</p>
+        <div className="health-card-static p-4">
+          <p className="text-xs font-semibold text-[#64748B] mb-1">You said:</p>
+          <p className="text-sm font-medium text-[#0F172A]">{transcript}</p>
         </div>
       )}
       {response && (
-        <div className="neo-card bg-neo-green/20 p-4">
-          <p className="text-xs font-bold text-muted-foreground mb-1">CareSync Pro says:</p>
-          <p className="text-sm font-medium">{response}</p>
-          <button onClick={handleSpeak} className="mt-2 text-xs font-bold flex items-center gap-1">🔊 Speak aloud</button>
-          <p className="text-[10px] text-muted-foreground mt-2 italic">{t("ai.disclaimer")}</p>
+        <div className="bg-[#D1FAE5] border border-[#A7F3D0] rounded-xl p-4">
+          <p className="text-xs font-semibold text-[#059669] mb-1">CareSync Pro says:</p>
+          <p className="text-sm font-medium text-[#065F46]">{response}</p>
+          <button onClick={handleSpeak} className="mt-2 text-xs font-semibold text-[#059669] flex items-center gap-1 hover:underline">🔊 Speak aloud</button>
+          <p className="text-[10px] text-[#059669]/70 mt-2 italic">{t("ai.disclaimer")}</p>
         </div>
       )}
-      <div className="neo-card p-4 text-center">
-        <p className="text-xs text-muted-foreground">
+      <div className="health-card-static p-4 text-center">
+        <p className="text-xs text-[#64748B]">
           Try saying: "When is my next appointment?" or "What are my prescriptions?"
         </p>
       </div>
@@ -597,29 +610,29 @@ function NotificationsView({
 
   return (
     <div className="space-y-4">
-      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-bold">
+      <button onClick={() => setView("home")} className="flex items-center gap-1 text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">
         <ChevronLeft className="w-4 h-4" /> {t("common.back")}
       </button>
-      <h1 className="text-xl font-black">{t("nav.notifications")}</h1>
+      <h1 className="text-xl font-bold text-[#0F172A]">{t("nav.notifications")}</h1>
 
       {notifications.length === 0 ? (
-        <div className="neo-card p-8 text-center">
-          <Bell className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-          <p className="font-bold">{t("notif.noNotifications")}</p>
+        <div className="health-card-static p-8 text-center">
+          <Bell className="w-10 h-10 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A]">{t("notif.noNotifications")}</p>
         </div>
       ) : (
         notifications.map((n) => (
           <div
             key={String(n._id)}
-            className={`neo-card p-4 cursor-pointer ${!n.read ? "bg-neo-yellow/20" : ""}`}
+            className={`health-card-static p-4 cursor-pointer transition-colors ${!n.read ? "bg-[#EFF6FF] border-[#BFDBFE]" : ""}`}
             onClick={() => !n.read && markAsRead({ notificationId: n._id as Id<"notifications"> })}
           >
             <div className="flex items-start gap-3">
-              <div className={`w-2 h-2 mt-2 shrink-0 ${!n.read ? "bg-neo-red" : "bg-muted"}`} />
+              <div className={`w-2 h-2 mt-2 shrink-0 rounded-full ${!n.read ? "bg-[#2563EB]" : "bg-[#CBD5E1]"}`} />
               <div>
-                <p className="font-bold text-sm">{String(n.title)}</p>
-                <p className="text-xs text-muted-foreground">{String(n.message)}</p>
-                <p className="text-[10px] text-muted-foreground mt-1">{new Date(Number(n.createdAt)).toLocaleString()}</p>
+                <p className="font-medium text-sm text-[#0F172A]">{String(n.title)}</p>
+                <p className="text-xs text-[#64748B]">{String(n.message)}</p>
+                <p className="text-[10px] text-[#94A3B8] mt-1">{new Date(Number(n.createdAt)).toLocaleString()}</p>
               </div>
             </div>
           </div>
