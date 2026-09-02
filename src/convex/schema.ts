@@ -105,28 +105,41 @@ const schema = defineSchema(
       .index("by_patientId", ["patientId"])
       .index("by_doctorId", ["doctorId"]),
 
-    // Prescriptions
+    // Prescriptions (enhanced with versioning, disease, source)
     prescriptions: defineTable({
       patientId: v.id("patients"),
       doctorId: v.id("doctors"),
       appointmentId: v.optional(v.id("appointments")),
+      prescriptionNumber: v.string(), // e.g. "RX-2026-000456"
+      version: v.number(), // 1, 2, 3...
+      disease: v.optional(v.string()), // condition/disease
       notes: v.optional(v.string()),
+      sourceMethod: v.union(
+        v.literal("structured"),
+        v.literal("voice"),
+        v.literal("upload"),
+      ),
       status: v.union(
         v.literal("active"),
-        v.literal("completed"),
-        v.literal("cancelled"),
+        v.literal("superseded"),
+        v.literal("discontinued"),
       ),
+      feedbackEligibleAfter: v.optional(v.number()),
       createdAt: v.number(),
     })
       .index("by_patientId", ["patientId"])
-      .index("by_doctorId", ["doctorId"]),
+      .index("by_doctorId", ["doctorId"])
+      .index("by_prescriptionNumber", ["prescriptionNumber"])
+      .index("by_status", ["status"]),
 
-    // Prescription items
+    // Prescription items (enhanced with timing/anupana)
     prescription_items: defineTable({
       prescriptionId: v.id("prescriptions"),
       medicineName: v.string(),
       dosage: v.string(),
       frequency: v.string(),
+      timing: v.optional(v.string()), // before/after food, morning/evening
+      anupana: v.optional(v.string()), // honey, warm water, etc.
       duration: v.string(),
       instructions: v.optional(v.string()),
       isAyurvedic: v.optional(v.boolean()),
@@ -192,6 +205,24 @@ const schema = defineSchema(
       updatedAt: v.number(),
     })
       .index("by_patientId", ["patientId"]),
+
+    // Prescription Feedback (patient feedback on medications)
+    prescription_feedback: defineTable({
+      prescriptionNumber: v.string(),
+      patientId: v.id("patients"),
+      feedbackStatus: v.union(
+        v.literal("working"),
+        v.literal("not_working"),
+        v.literal("partial"),
+        v.literal("side_effects"),
+      ),
+      notes: v.optional(v.string()),
+      reviewedByDoctor: v.boolean(),
+      submittedAt: v.number(),
+    })
+      .index("by_prescriptionNumber", ["prescriptionNumber"])
+      .index("by_patientId", ["patientId"])
+      .index("by_reviewed", ["reviewedByDoctor"]),
 
     // Notifications
     notifications: defineTable({

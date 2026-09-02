@@ -32,11 +32,14 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { DocumentUploadWithCamera } from "@/components/CameraCapture";
 import IntakeForm from "@/components/IntakeForm";
 import PrescriptionForm from "@/components/PrescriptionForm";
+import { PrescriptionPDF } from "@/components/PrescriptionPDF";
+import DoctorReviewPanel from "@/components/DoctorReviewPanel";
 
 type View =
   | "dashboard"
   | "patients"
   | "appointments"
+  | "reviews"
   | "prescriptions"
   | "records"
   | "reports"
@@ -91,6 +94,7 @@ export default function Dashboard() {
     { icon: Pill, label: t("nav.prescriptions"), key: "prescriptions" },
     { icon: FileText, label: t("nav.reports"), key: "reports" },
     { icon: Clock, label: t("nav.followups"), key: "followups" },
+    { icon: AlertTriangle, label: "Needs Review", key: "reviews" },
     { icon: FileText, label: t("nav.documents"), key: "documents" },
     { icon: Bell, label: t("nav.alerts"), key: "notifications" },
   ];
@@ -216,6 +220,9 @@ export default function Dashboard() {
           {view === "records" && <RecordsView doctorProfile={doctorProfile} />}
           {view === "reports" && <ReportsView />}
           {view === "followups" && <FollowupsView />}
+          {view === "reviews" && doctorProfile && (
+            <ReviewsView doctorProfile={doctorProfile} />
+          )}
           {view === "documents" && <DocumentsView />}
           {view === "notifications" && (
             <NotificationsView notifications={notifications || []} />
@@ -749,7 +756,7 @@ function PrescriptionsView() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`health-badge ${rx.status === "active" ? "bg-[#D1FAE5] text-[#059669]" : rx.status === "completed" ? "bg-[#EEF2FF] text-[#4F46E5]" : "bg-[#F1F5F9] text-[#64748B]"}`}>{rx.status}</span>
+                <span className={`health-badge ${rx.status === "active" ? "bg-[#D1FAE5] text-[#059669]" : rx.status === "superseded" ? "bg-[#EEF2FF] text-[#4F46E5]" : rx.status === "discontinued" ? "bg-[#FEE2E2] text-[#DC2626]" : "bg-[#F1F5F9] text-[#64748B]"}`}>{rx.status}</span>
                 <ChevronRight className="w-4 h-4 text-[#94A3B8]" />
               </div>
             </div>
@@ -779,6 +786,25 @@ function PrescriptionsView() {
                   </div>
                 )}
                 <p className="text-xs text-[#94A3B8]">Created: {new Date(rx.createdAt).toLocaleString()}</p>
+                <PrescriptionPDF
+                  prescriptionNumber={rx.prescriptionNumber}
+                  version={rx.version}
+                  disease={rx.disease}
+                  patientName={rx.patientName || "Patient"}
+                  doctorName={rx.doctorName || "Doctor"}
+                  items={(rx.items || []).map((item: Record<string, unknown>) => ({
+                    medicineName: String(item.medicineName),
+                    dosage: String(item.dosage),
+                    frequency: String(item.frequency),
+                    timing: item.timing ? String(item.timing) : undefined,
+                    anupana: item.anupana ? String(item.anupana) : undefined,
+                    duration: String(item.duration),
+                    instructions: item.instructions ? String(item.instructions) : undefined,
+                    isAyurvedic: Boolean(item.isAyurvedic),
+                  }))}
+                  notes={rx.notes ? String(rx.notes) : undefined}
+                  createdAt={rx.createdAt}
+                />
               </div>
             )}
           </div>
@@ -1460,6 +1486,33 @@ function NotificationsView({ notifications }: { notifications: Record<string, un
           </div>
         ))
       )}
+    </div>
+  );
+}
+
+/* ─── Reviews View (patient feedback) ─── */
+function ReviewsView({ doctorProfile }: { doctorProfile: Record<string, unknown> }) {
+  const unreviewedFeedback = useQuery(api.prescriptions.listUnreviewedFeedback, {});
+
+  if (unreviewedFeedback === undefined) {
+    return (
+      <div className="flex items-center gap-3 py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+        <span className="text-[#64748B]">Loading reviews...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-lg font-bold text-[#0F172A]">Needs Review</h2>
+        <p className="text-xs text-[#64748B]">Patient feedback on prescriptions that needs your attention</p>
+      </div>
+      <DoctorReviewPanel
+        feedbackItems={unreviewedFeedback as never[]}
+        doctorProfileId={doctorProfile._id as Id<"doctors">}
+      />
     </div>
   );
 }

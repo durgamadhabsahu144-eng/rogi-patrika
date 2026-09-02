@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { DocumentUploadWithCamera } from "@/components/CameraCapture";
+import PrescriptionFeedback from "@/components/PrescriptionFeedback";
 import IntakeForm from "@/components/IntakeForm";
 
 const languages = [
@@ -51,6 +52,7 @@ export default function PatientDashboard() {
   const appointments = useQuery(api.appointments.list, {});
   const prescriptions = useQuery(api.prescriptions.list, {});
   const notifications = useQuery(api.notifications.list);
+  const patientProfile = useQuery(api.patients.getMyProfile);
   const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
   const seedDemo = useMutation(api.seed.seedDemoData);
@@ -122,7 +124,7 @@ export default function PatientDashboard() {
           <AppointmentsView appointments={appointments || []} t={t} setView={setView} />
         )}
         {view === "prescriptions" && (
-          <PrescriptionsView prescriptions={prescriptions || []} t={t} setView={setView} />
+          <PrescriptionsView prescriptions={prescriptions || []} t={t} setView={setView} patientProfile={patientProfile} />
         )}
         {view === "reports" && <ReportsView t={t} setView={setView} />}
         {view === "followups" && <FollowupsView t={t} setView={setView} />}
@@ -278,10 +280,12 @@ function PrescriptionsView({
   prescriptions,
   t,
   setView,
+  patientProfile,
 }: {
   prescriptions: Array<Record<string, unknown>>;
   t: (key: string) => string;
   setView: (v: View) => void;
+  patientProfile?: Record<string, unknown> | null;
 }) {
   return (
     <div className="space-y-4">
@@ -318,6 +322,16 @@ function PrescriptionsView({
                 </div>
               ))}
               {rx.notes ? <p className="text-xs text-[#64748B] mt-2">{String(rx.notes)}</p> : null}
+              {rx.status === "active" && Boolean(rx.prescriptionNumber) && (
+                <div className="mt-3">
+                  <PrescriptionFeedback
+                    prescriptionNumber={String(rx.prescriptionNumber)}
+                    patientId={(patientProfile?._id || "") as never}
+                    eligibleAfter={rx.feedbackEligibleAfter as number | undefined}
+                    alreadyFeedback={Boolean(rx.feedbackCount && Number(rx.feedbackCount) > 0)}
+                  />
+                </div>
+              )}
             </div>
           );
         })
