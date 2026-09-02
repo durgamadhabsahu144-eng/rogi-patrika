@@ -128,6 +128,21 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     }
   };
 
+  const handleDemoLogin = async (demoRole: Role) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await signIn("anonymous");
+      await setMyRole({ role: demoRole });
+      navigate(redirectAfterAuth || resolveRedirect(demoRole));
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to sign in."
+      );
+      setIsLoading(false);
+    }
+  };
+
   const roleStyles: Record<Role, { bg: string; icon: string; border: string }> = {
     doctor: { bg: "bg-[#EFF6FF]", icon: "text-[#2563EB]", border: "border-[#BFDBFE] hover:border-[#2563EB]" },
     patient: { bg: "bg-[#D1FAE5]", icon: "text-[#059669]", border: "border-[#A7F3D0] hover:border-[#059669]" },
@@ -264,6 +279,54 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                 Continue as Guest
               </Button>
             </form>
+
+            {/* Demo Quick Login */}
+            {selectedRole === "patient" && (
+              <div className="mt-6 p-4 rounded-xl border border-[#D1FAE5] bg-[#ECFDF5]">
+                <p className="text-xs font-semibold text-[#059669] mb-3">⚡ Quick Demo Login — See a patient with data</p>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin("patient")}
+                    className="w-full p-3 rounded-xl bg-white border border-[#A7F3D0] hover:border-[#059669] hover:shadow-sm text-left transition-all"
+                  >
+                    <p className="text-sm font-semibold text-[#0F172A]">Rahul Kumar</p>
+                    <p className="text-xs text-[#64748B]">Anxiety • Thyroid • Prescriptions & Reports</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin("patient")}
+                    className="w-full p-3 rounded-xl bg-white border border-[#A7F3D0] hover:border-[#059669] hover:shadow-sm text-left transition-all"
+                  >
+                    <p className="text-sm font-semibold text-[#0F172A]">Anita Devi</p>
+                    <p className="text-xs text-[#64748B]">Diabetes • Cholesterol • Prescriptions & Reports</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDemoLogin("patient")}
+                    className="w-full p-3 rounded-xl bg-white border border-[#A7F3D0] hover:border-[#059669] hover:shadow-sm text-left transition-all"
+                  >
+                    <p className="text-sm font-semibold text-[#0F172A]">Suresh Patel</p>
+                    <p className="text-xs text-[#64748B]">Hypertension • Sleep • Prescriptions & Reports</p>
+                  </button>
+                </div>
+                <p className="text-[10px] text-[#059669]/70 mt-2">Click any patient — demo data auto-seeds on login</p>
+              </div>
+            )}
+            {selectedRole === "doctor" && (
+              <div className="mt-6 p-4 rounded-xl border border-[#BFDBFE] bg-[#EFF6FF]">
+                <p className="text-xs font-semibold text-[#2563EB] mb-3">⚡ Quick Demo Login — See a doctor with data</p>
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin("doctor")}
+                  className="w-full p-3 rounded-xl bg-white border border-[#BFDBFE] hover:border-[#2563EB] hover:shadow-sm text-left transition-all"
+                >
+                  <p className="text-sm font-semibold text-[#0F172A]">Dr. Priya Sharma</p>
+                  <p className="text-xs text-[#64748B]">3 patients • Prescriptions • Reports • Appointments</p>
+                </button>
+                <p className="text-[10px] text-[#2563EB]/70 mt-2">Click — demo data auto-seeds on login</p>
+              </div>
+            )}
           </div>
         )}
 
