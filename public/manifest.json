@@ -1,0 +1,16 @@
+{
+  "name": "RogiPatrika",
+  "short_name": "RogiPatrika",
+  "description": "Patient Case-Taking Software — Ministry of AYUSH (SIH 26047)",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

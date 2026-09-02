@@ -11,6 +11,19 @@ import { Loader2 } from "lucide-react";
 import AppRoutes from "./App";
 import "./index.css";
 
+// Register Service Worker for offline support
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => {
+        // Check for SW updates every hour
+        setInterval(() => reg.update(), 60 * 60 * 1000);
+      })
+      .catch(() => {});
+  });
+}
+
 /** Silent error boundary — if VlyToolbar crashes it renders nothing */
 class ToolbarErrorBoundary extends React.Component<
   { children: React.ReactNode },

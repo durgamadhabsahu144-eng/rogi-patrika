@@ -1,52 +1,74 @@
-const CACHE_NAME = 'rogi-patrika-shell-v1';
+const CACHE_NAME = 'rogi-patrika-v2';
+const SHELL_URLS = ['/', '/index.html'];
 
-// Add any other static shell assets you know the exact hashed filenames for
-// at build time (or generate this list with a build plugin like
-// vite-plugin-pwa, which does this automatically).
-const APP_SHELL = ['/', '/index.html', '/manifest.json'];
-
+// --- Install: cache the app shell -------------------------------------------
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_URLS))
+  );
   self.skipWaiting();
 });
 
+// --- Activate: clean old caches ---------------------------------------------
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
   );
   self.clients.claim();
 });
 
-// Cache-first for GET requests, with runtime caching of new same-origin
-// assets as they're fetched (so the built JS/CSS bundles get cached on
-// first visit without hardcoding their hashed filenames here).
+// --- Fetch: cache-first for same-origin assets, network for API -------------
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+
+  // Only handle GET requests
   if (request.method !== 'GET') return;
 
-  // Never cache API calls — those should hit the network or fail explicitly
-  // so the app's offline-queue logic can catch the failure.
-  if (request.url.includes('/api/')) return;
+  // Never cache API / Convex calls — let them fail so offline-queue logic runs
+  const url = new URL(request.url);
+  if (
+    url.hostname.includes('convex.cloud') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/convex')
+  ) {
+    return;
+  }
 
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
+
       return fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          // Only cache successful same-origin responses
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+
+          // Clone before caching (response body can only be consumed once)
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseToCache);
+          });
+
           return response;
         })
-        .catch(() => caches.match('/index.html'));
+        .catch(() => {
+          // Offline fallback: for navigation requests, return cached index.html
+          // so the React SPA can render its offline routes
+          if (request.mode === 'navigate') {
+            return caches.match('/index.html');
+          }
+          // For other requests (images, fonts, etc.), just fail
+          return new Response('Offline', { status: 503, statusText: 'Offline' });
+        });
     })
   );
 });
 
-// Background Sync: fired by the browser once connectivity returns, for any
-// tag registered via reg.sync.register(). We don't touch IndexedDB directly
-// here — we notify open tabs, which flush the Dexie queue themselves.
+// --- Background Sync: notify open tabs to flush their Dexie queues ----------
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-offline-queue') {
     event.waitUntil(notifyClients());
