@@ -1,85 +1,59 @@
-// RogiPatrika Service Worker — Offline Support
-const CACHE_NAME = "rogipatrika-v1";
-const STATIC_ASSETS = ["/", "/index.html"];
+const CACHE_NAME = 'rogi-patrika-shell-v1';
 
-// Install — cache app shell
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)),
-  );
+// Add any other static shell assets you know the exact hashed filenames for
+// at build time (or generate this list with a build plugin like
+// vite-plugin-pwa, which does this automatically).
+const APP_SHELL = ['/', '/index.html', '/manifest.json'];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
   self.skipWaiting();
 });
 
-// Activate — clean old caches
-self.addEventListener("activate", (event) => {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)),
-      ),
-    ),
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))))
   );
   self.clients.claim();
 });
 
-// Fetch — network-first with cache fallback
-self.addEventListener("fetch", (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== "GET") return;
+// Cache-first for GET requests, with runtime caching of new same-origin
+// assets as they're fetched (so the built JS/CSS bundles get cached on
+// first visit without hardcoding their hashed filenames here).
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
 
-  // Skip Convex and API requests
-  const url = new URL(event.request.url);
-  if (
-    url.hostname.includes("convex.cloud") ||
-    url.pathname.startsWith("/api/")
-  ) {
-    return;
-  }
+  // Never cache API calls — those should hit the network or fail explicitly
+  // so the app's offline-queue logic can catch the failure.
+  if (request.url.includes('/api/')) return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Cache successful responses
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Fallback to cache
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          // For navigation requests, return cached index.html
-          if (event.request.mode === "navigate") {
-            return caches.match("/index.html");
-          }
-          return new Response("Offline", { status: 503 });
-        });
-      }),
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => caches.match('/index.html'));
+    })
   );
 });
 
-// Background Sync — push queued offline records
-self.addEventListener("sync", (event) => {
-  if (event.tag === "rogipatrika-sync") {
-    event.waitUntil(syncOfflineData());
+// Background Sync: fired by the browser once connectivity returns, for any
+// tag registered via reg.sync.register(). We don't touch IndexedDB directly
+// here — we notify open tabs, which flush the Dexie queue themselves.
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-offline-queue') {
+    event.waitUntil(notifyClients());
   }
 });
 
-async function syncOfflineData() {
-  // Notify the main thread to trigger sync
-  const clients = await self.clients.matchAll();
-  clients.forEach((client) => {
-    client.postMessage({ type: "BACKGROUND_SYNC" });
-  });
+async function notifyClients() {
+  const clients = await self.clients.matchAll({ includeUncontrolled: true });
+  clients.forEach((client) => client.postMessage({ type: 'SYNC_OFFLINE_QUEUE' }));
 }
-
-// Listen for messages from main thread
-self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
-});
