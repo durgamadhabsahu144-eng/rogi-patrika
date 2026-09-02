@@ -961,11 +961,236 @@ function RecordsView({ doctorProfile }: { doctorProfile: Record<string, unknown>
 
 /* ─── Reports View ─── */
 function ReportsView() {
+  const patients = useQuery(api.patients.list, {});
+  const [selectedId, setSelectedId] = useState<string | "">("");
+  const [showAdd, setShowAdd] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const doctorProfile = useQuery(api.doctors.getMyProfile);
+  const allReports = useQuery(api.reports.listByDoctor, {});
+  const reportsByPatient = useQuery(
+    api.reports.list,
+    selectedId ? { patientId: selectedId as Id<"patients"> } : "skip"
+  );
+  const createReport = useMutation(api.reports.create);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [form, setForm] = useState({ patientId: "", title: "", reportType: "blood_test", notes: "" });
+
+  const reportTypes = [
+    { value: "blood_test", label: "Blood Test" },
+    { value: "diabetes_panel", label: "Diabetes Panel" },
+    { value: "thyroid_panel", label: "Thyroid Panel" },
+    { value: "lipid_profile", label: "Lipid Profile" },
+    { value: "liver_function", label: "Liver Function" },
+    { value: "kidney_function", label: "Kidney Function" },
+    { value: "urine_test", label: "Urine Test" },
+    { value: "ecg", label: "ECG" },
+    { value: "x_ray", label: "X-Ray" },
+    { value: "mri", label: "MRI" },
+    { value: "ayurvedic_assessment", label: "Ayurvedic Assessment" },
+    { value: "other", label: "Other" },
+  ];
+
+  const typeColors: Record<string, { bg: string; text: string }> = {
+    blood_test: { bg: "bg-red-100", text: "text-red-600" },
+    diabetes_panel: { bg: "bg-orange-100", text: "text-orange-600" },
+    thyroid_panel: { bg: "bg-purple-100", text: "text-purple-600" },
+    lipid_profile: { bg: "bg-amber-100", text: "text-amber-600" },
+    liver_function: { bg: "bg-emerald-100", text: "text-emerald-600" },
+    kidney_function: { bg: "bg-blue-100", text: "text-blue-600" },
+    urine_test: { bg: "bg-yellow-100", text: "text-yellow-600" },
+    ecg: { bg: "bg-rose-100", text: "text-rose-600" },
+    x_ray: { bg: "bg-slate-100", text: "text-slate-600" },
+    mri: { bg: "bg-indigo-100", text: "text-indigo-600" },
+    ayurvedic_assessment: { bg: "bg-green-100", text: "text-green-600" },
+    other: { bg: "bg-gray-100", text: "text-gray-600" },
+  };
+
+  const displayReports = selectedId ? (reportsByPatient || []) : (allReports || []);
+
+  const handleCreateReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.patientId || !form.title || !doctorProfile?._id) return;
+    setLoading(true);
+    try {
+      await createReport({
+        patientId: form.patientId as Id<"patients">,
+        doctorId: doctorProfile._id as Id<"doctors">,
+        title: form.title,
+        reportType: form.reportType,
+        notes: form.notes || undefined,
+      });
+      setShowAdd(false);
+      setForm({ patientId: "", title: "", reportType: "blood_test", notes: "" });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="health-card-static p-12 text-center">
-      <FileText className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
-      <p className="font-semibold text-[#0F172A] mb-1">Reports</p>
-      <p className="text-sm text-[#64748B]">Select a patient to view their medical reports.</p>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="flex-1">
+          <label className="text-sm font-medium text-[#334155] block mb-1">Filter by Patient</label>
+          <select
+            className="health-input w-full py-2 px-3 rounded-xl"
+            value={selectedId}
+            onChange={(e) => {
+              setSelectedId(e.target.value);
+              setExpandedId(null);
+            }}
+          >
+            <option value="">All Patients</option>
+            {patients?.map((p) => (
+              <option key={p._id} value={p._id}>
+                {p.userName || "Patient"}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Button
+          onClick={() => setShowAdd(!showAdd)}
+          className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Report
+        </Button>
+      </div>
+
+      {showAdd && (
+        <div className="health-card-static p-6">
+          <h3 className="font-semibold text-lg mb-4 text-[#0F172A]">Add Medical Report</h3>
+          {!doctorProfile?._id ? (
+            <p className="text-sm text-[#64748B]">Loading your profile...</p>
+          ) : (
+            <form onSubmit={handleCreateReport} className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Patient *</label>
+                  <select
+                    className="health-input w-full py-2 px-3 rounded-xl"
+                    value={form.patientId}
+                    onChange={(e) => setForm({ ...form, patientId: e.target.value })}
+                    required
+                  >
+                    <option value="">Select patient</option>
+                    {patients?.map((p) => (
+                      <option key={p._id} value={p._id}>{p.userName || "Unknown"}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Report Title *</label>
+                  <Input className="health-input rounded-xl" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. Complete Blood Count" required />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Report Type</label>
+                  <select
+                    className="health-input w-full py-2 px-3 rounded-xl"
+                    value={form.reportType}
+                    onChange={(e) => setForm({ ...form, reportType: e.target.value })}
+                  >
+                    {reportTypes.map((rt) => (
+                      <option key={rt.value} value={rt.value}>{rt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-[#334155] block mb-1">Notes / Findings</label>
+                  <Input className="health-input rounded-xl" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Key findings or observations" />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button type="submit" className="health-btn bg-[#2563EB] text-white font-semibold rounded-xl" disabled={loading}>
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Save Report
+                </Button>
+                <Button type="button" variant="outline" className="health-btn font-semibold rounded-xl" onClick={() => setShowAdd(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+
+      {displayReports.length === 0 ? (
+        <div className="health-card-static p-12 text-center">
+          <FileText className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
+          <p className="font-semibold text-[#0F172A] mb-1">No Reports Found</p>
+          <p className="text-sm text-[#64748B]">
+            {selectedId ? "No reports for this patient yet." : "Add a medical report to get started."}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm text-[#64748B] font-medium">
+            {displayReports.length} Report{displayReports.length !== 1 ? "s" : ""} Found
+          </p>
+          {displayReports.map((report) => {
+            const colors = typeColors[report.reportType] || typeColors.other;
+            return (
+              <div key={report._id} className="health-card-static overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setExpandedId(expandedId === report._id ? null : report._id)}
+                  className="w-full p-4 flex items-center gap-3 text-left hover:bg-[#F8FAFC] rounded-xl transition-colors"
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${colors.bg}`}>
+                    <FileText className={`w-5 h-5 ${colors.text}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-[#0F172A] truncate">{report.title}</p>
+                    <p className="text-xs text-[#64748B]">
+                      {report.patientName || "Patient"} · {report.reportType.replace(/_/g, " ")} · {new Date(report.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide ${colors.bg} ${colors.text}`}>
+                    {report.reportType.replace(/_/g, " ")}
+                  </span>
+                  <ChevronRight className={`w-5 h-5 text-[#94A3B8] transition-transform ${expandedId === report._id ? "rotate-90" : ""}`} />
+                </button>
+
+                {expandedId === report._id && (
+                  <div className="px-4 pb-4 border-t border-slate-100 pt-3 space-y-3">
+                    {report.patientName && (
+                      <div>
+                        <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Patient</p>
+                        <p className="text-sm text-[#0F172A] font-medium">{report.patientName}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Report Type</p>
+                      <p className="text-sm text-[#0F172A]">{report.reportType.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Date</p>
+                      <p className="text-sm text-[#0F172A]">{new Date(report.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+                    </div>
+                    {report.notes && (
+                      <div>
+                        <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-wide mb-0.5">Notes / Findings</p>
+                        <p className="text-sm text-[#0F172A]">{report.notes}</p>
+                      </div>
+                    )}
+                    {report.aiGeneratedSummary && (
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <p className="text-[10px] font-bold text-blue-700 uppercase mb-1">AI Summary</p>
+                        <p className="text-xs text-blue-900">{report.aiGeneratedSummary}</p>
+                        <p className="text-[10px] text-blue-500 mt-1 italic">AI-generated — verify with healthcare professional.</p>
+                      </div>
+                    )}
+                    {report.doctorName && (
+                      <p className="text-[11px] text-[#64748B]">Ordered by: Dr. {report.doctorName}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

@@ -16,7 +16,41 @@ export const list = query({
       reports.map(async (report) => {
         const doctor = await ctx.db.get(report.doctorId);
         const doctorUser = doctor ? await ctx.db.get(doctor.userId) : null;
-        return { ...report, doctorName: doctorUser?.name };
+        const patient = await ctx.db.get(args.patientId);
+        const patientUser = patient ? await ctx.db.get(patient.userId) : null;
+        return { ...report, doctorName: doctorUser?.name, patientName: patientUser?.name };
+      })
+    );
+
+    return enriched.sort((a, b) => b.createdAt - a.createdAt);
+  },
+});
+
+export const listByDoctor = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const doctor = await ctx.db
+      .query("doctors")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!doctor) return [];
+
+    const reports = await ctx.db
+      .query("reports")
+      .withIndex("by_doctorId", (q) => q.eq("doctorId", doctor._id))
+      .collect();
+
+    const enriched = await Promise.all(
+      reports.map(async (report) => {
+        const patient = await ctx.db.get(report.patientId);
+        const patientUser = patient ? await ctx.db.get(patient.userId) : null;
+        const doctor = await ctx.db.get(report.doctorId);
+        const doctorUser = doctor ? await ctx.db.get(doctor.userId) : null;
+        return { ...report, patientName: patientUser?.name, doctorName: doctorUser?.name };
       })
     );
 
