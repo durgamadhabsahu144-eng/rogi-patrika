@@ -251,7 +251,7 @@ export default function PrescriptionForm({
           sourceMethod: entryMethod,
           notes: notes || "",
           status: "active",
-          createdAt: Date.now(),
+          createdAt: new Date().toISOString(),
         });
       } else {
         await createPrescription(payload);
