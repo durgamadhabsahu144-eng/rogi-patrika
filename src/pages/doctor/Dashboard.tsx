@@ -31,6 +31,7 @@ import {
 import type { Id } from "@/convex/_generated/dataModel";
 import { DocumentUploadWithCamera } from "@/components/CameraCapture";
 import IntakeForm from "@/components/IntakeForm";
+import PrescriptionForm from "@/components/PrescriptionForm";
 
 type View =
   | "dashboard"
@@ -685,10 +686,12 @@ function AppointmentsView() {
 /* ─── Prescriptions View ─── */
 function PrescriptionsView() {
   const { t } = useLanguage();
+  const doctorProfile = useQuery(api.doctors.getMyProfile);
   const prescriptions = useQuery(api.prescriptions.list, {});
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
-  if (prescriptions === undefined) {
+  if (prescriptions === undefined || doctorProfile === undefined) {
     return (
       <div className="flex items-center gap-3 py-20">
         <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
@@ -698,11 +701,39 @@ function PrescriptionsView() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#0F172A]">{t("nav.prescriptions")}</h2>
+          <p className="text-xs text-[#64748B]">Create and manage patient prescriptions</p>
+        </div>
+        <Button
+          onClick={() => setShowForm(!showForm)}
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-sm font-semibold px-4 py-2 shadow-sm transition-colors"
+        >
+          {showForm ? <><X className="w-4 h-4 mr-1.5" /> Close</> : <><Plus className="w-4 h-4 mr-1.5" /> New Prescription</>}
+        </Button>
+      </div>
+
+      {/* Prescription Form */}
+      {showForm && doctorProfile && (
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 shadow-sm">
+          <PrescriptionForm
+            doctorProfileId={doctorProfile._id}
+            onSuccess={() => {
+              setShowForm(false);
+            }}
+            onCancel={() => setShowForm(false)}
+          />
+        </div>
+      )}
+
+      {/* Prescriptions List */}
       {prescriptions.length === 0 ? (
         <div className="health-card-static p-12 text-center">
           <Pill className="w-12 h-12 mx-auto mb-3 text-[#94A3B8]" />
           <p className="font-semibold text-[#0F172A]">{t("common.noData")}</p>
+          <p className="text-xs text-[#64748B] mt-1">Create your first prescription using the button above</p>
         </div>
       ) : (
         prescriptions.map((rx) => (
@@ -717,23 +748,37 @@ function PrescriptionsView() {
                   {rx.items?.length || 0} medicines • {new Date(rx.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <span className={`health-badge ${rx.status === "active" ? "bg-[#D1FAE5] text-[#059669]" : "bg-[#F1F5F9] text-[#64748B]"}`}>{rx.status}</span>
+              <div className="flex items-center gap-2">
+                <span className={`health-badge ${rx.status === "active" ? "bg-[#D1FAE5] text-[#059669]" : rx.status === "completed" ? "bg-[#EEF2FF] text-[#4F46E5]" : "bg-[#F1F5F9] text-[#64748B]"}`}>{rx.status}</span>
+                <ChevronRight className="w-4 h-4 text-[#94A3B8]" />
+              </div>
             </div>
             {expandedId === rx._id && (
               <div className="p-4 border-t border-[#F1F5F9] bg-[#F8FAFC] space-y-3 rounded-b-xl">
+                {rx.doctorName && (
+                  <p className="text-xs text-[#64748B]">Prescribed by <span className="font-medium text-[#334155]">{rx.doctorName}</span></p>
+                )}
                 {rx.items?.map((item) => (
                   <div key={item._id} className="bg-white border border-[#E2E8F0] rounded-xl p-3">
-                    <p className="font-medium text-sm text-[#0F172A]">
-                      {item.medicineName}
-                      {item.isAyurvedic && <span className="ml-2 text-xs bg-[#D1FAE5] text-[#059669] px-2 py-0.5 rounded-md font-medium">Ayurvedic</span>}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-sm text-[#0F172A]">
+                        {item.medicineName}
+                      </p>
+                      {item.isAyurvedic && <span className="text-xs bg-[#D1FAE5] text-[#059669] px-2 py-0.5 rounded-md font-medium">🌿 Ayurvedic</span>}
+                    </div>
                     <p className="text-xs text-[#64748B] mt-1">
-                      {item.dosage} • {item.frequency} • {item.duration}
+                      💊 {item.dosage} • 🕐 {item.frequency} • 📅 {item.duration}
                     </p>
-                    {item.instructions && <p className="text-xs mt-1 text-[#334155]">📋 {item.instructions}</p>}
+                    {item.instructions && <p className="text-xs mt-1.5 text-[#334155] bg-[#FFFBEB] border border-[#FEF3C7] rounded-lg px-2.5 py-1.5">📋 {item.instructions}</p>}
                   </div>
                 ))}
-                {rx.notes && <p className="text-xs text-[#64748B]"><span className="font-medium text-[#334155]">Notes:</span> {rx.notes}</p>}
+                {rx.notes && (
+                  <div className="bg-white border border-[#E2E8F0] rounded-xl p-3">
+                    <p className="text-xs font-medium text-[#334155] mb-1">Additional Notes</p>
+                    <p className="text-xs text-[#64748B]">{rx.notes}</p>
+                  </div>
+                )}
+                <p className="text-xs text-[#94A3B8]">Created: {new Date(rx.createdAt).toLocaleString()}</p>
               </div>
             )}
           </div>

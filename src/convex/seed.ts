@@ -780,9 +780,29 @@ export const seedDemoData = mutation({
     await ctx.db.insert("appointments", { patientId: p3, doctorId: doctor1ProfileId, date: nextWeek, time: "09:00", reason: "BP check", status: "scheduled", createdAt: now });
     await ctx.db.insert("appointments", { patientId: p1, doctorId: doctor1ProfileId, date: yesterday, time: "14:00", reason: "Consultation", status: "completed", createdAt: now });
 
-    // Prescriptions
-    const rx = await ctx.db.insert("prescriptions", { patientId: p1, doctorId: doctor1ProfileId, notes: "30 day course", status: "active", createdAt: now });
-    await ctx.db.insert("prescription_items", { prescriptionId: rx, medicineName: "Ashwagandha Churna", dosage: "500mg", frequency: "Twice daily", duration: "30 days", instructions: "With warm milk", isAyurvedic: true });
+    // Prescriptions — Rahul Kumar (Anxiety & Thyroid)
+    const rx1 = await ctx.db.insert("prescriptions", { patientId: p1, doctorId: doctor1ProfileId, notes: "Continue current regimen. Review thyroid levels after 30 days. Avoid caffeine after 6 PM. Practice pranayama daily.", status: "active", createdAt: now });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx1, medicineName: "Ashwagandha Churna", dosage: "500mg", frequency: "Twice daily", duration: "30 days", instructions: "With warm milk before bedtime", isAyurvedic: true });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx1, medicineName: "Brahmi Vati", dosage: "250mg", frequency: "Once daily", duration: "30 days", instructions: "After breakfast for mental clarity", isAyurvedic: true });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx1, medicineName: "Levothyroxine", dosage: "50mcg", frequency: "Once daily", duration: "30 days", instructions: "Empty stomach, 30 minutes before breakfast" });
+
+    // Prescriptions — Anita Devi (Diabetes & Cholesterol)
+    const rx2 = await ctx.db.insert("prescriptions", { patientId: p2, doctorId: doctor1ProfileId, notes: "Strict sugar control. Walk 30 minutes daily. Avoid fried and sweet foods. HbA1c re-check in 3 months.", status: "active", createdAt: now - 86400000 * 5 });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx2, medicineName: "Guggulu Churna", dosage: "1gm", frequency: "Twice daily", duration: "60 days", instructions: "With warm water after meals", isAyurvedic: true });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx2, medicineName: "Metformin", dosage: "500mg", frequency: "Twice daily", duration: "60 days", instructions: "With meals to reduce stomach upset" });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx2, medicineName: "Triphala Churna", dosage: "3gm", frequency: "Once daily", duration: "60 days", instructions: "Before bedtime with warm water for digestion", isAyurvedic: true });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx2, medicineName: "Amla Juice", dosage: "15ml", frequency: "Once daily", duration: "30 days", instructions: "Morning empty stomach for immunity", isAyurvedic: true });
+
+    // Prescriptions — Suresh Patel (Hypertension & Sleep)
+    const rx3 = await ctx.db.insert("prescriptions", { patientId: p3, doctorId: doctor1ProfileId, notes: "Monitor BP twice daily. Reduce salt intake. Practice Shirodhara therapy weekly. Follow-up in 2 weeks.", status: "active", createdAt: now - 86400000 * 2 });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx3, medicineName: "Brahmi Syrup", dosage: "15ml", frequency: "Twice daily", duration: "21 days", instructions: "After meals for stress relief and BP control", isAyurvedic: true });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx3, medicineName: "Jatamansi Churna", dosage: "250mg", frequency: "Once daily", duration: "21 days", instructions: "Before bedtime for better sleep", isAyurvedic: true });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx3, medicineName: "Amlodipine", dosage: "5mg", frequency: "Once daily", duration: "30 days", instructions: "Morning, same time every day" });
+
+    // Prescriptions — Rahul Kumar (Completed — earlier visit)
+    const rx4 = await ctx.db.insert("prescriptions", { patientId: p1, doctorId: doctor1ProfileId, notes: "Initial 14-day course for seasonal allergy. Completed successfully.", status: "completed", createdAt: now - 86400000 * 21 });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx4, medicineName: "Haridra Churna", dosage: "1gm", frequency: "Twice daily", duration: "14 days", instructions: "With honey for seasonal allergies", isAyurvedic: true });
+    await ctx.db.insert("prescription_items", { prescriptionId: rx4, medicineName: "Cetirizine", dosage: "10mg", frequency: "Once daily", duration: "7 days", instructions: "At bedtime for sneezing and runny nose" });
 
     // Reports
     await ctx.db.insert("reports", { patientId: p1, doctorId: doctor1ProfileId, title: "Complete Blood Count (CBC)", reportType: "blood_test", notes: "Hemoglobin: 13.2 g/dL (normal), WBC: 7,800/uL (normal), Platelets: 2,40,000/uL (normal). All values within healthy range.", createdAt: now - 86400000 * 7 });
